@@ -281,8 +281,8 @@ class Login extends Component {
         <div>
           <div className="leftblock" style={{width:"100%"}}>
           Stage: { this.state.stage }<br />
-          User Info: { JSON.stringify(this.props.userinfo) }
-          Please click the button below to Authorize SMART actions within the FEAST ecosystem 
+          User Info: { JSON.stringify(this.props.userinfo) }<br />
+          Please click the button below to Authorize SMART actions within the FEAST ecosystem<br />
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.oidcAuthorize}>OIDC Authorize</button>
@@ -297,8 +297,8 @@ class Login extends Component {
           <div className="leftblock" style={{width:"100%"}}>
           Stage: { this.state.stage }<br />
           Callback code: { this.state.oidcCallbackCode }<br />
-          Credentials: { previousCredentials } // Should be null
-          Please click to complete authentication and authorization
+          Credentials: { previousCredentials } // Should be null<br />
+          Please click to complete authentication and authorization<br />
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleOIDCCodeExchange}>OIDC Exchange Code</button>
@@ -313,7 +313,7 @@ class Login extends Component {
           <div className="leftblock" style={{width:"100%"}}>
           Stage: { this.state.stage }<br />
           Callback code: { this.props.userinfo.oidcCallback } // Should be null now!<br />
-          Credentials: { previousCredentials } // Complete credentials
+          Credentials: { previousCredentials } // Complete credentials<br />
           Click below for access to GW-FEAST
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
