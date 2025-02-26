@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/node,react,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,react,visualstudiocode
 
+build/
+
 ### Node ###
 # Logs
 logs
