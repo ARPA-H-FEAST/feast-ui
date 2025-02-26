@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Form, FormControl, Container, Button, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom'
 import Searchbox from "./search_box";
 import Usericon from "./user_icon";
 import {getLogoutResponse} from "./util";
@@ -18,6 +19,10 @@ class HeaderTwo extends Component {
     });
   }
 
+  routeToLogin = () => {
+    window.location.href = this.props.initObj["webroot"] + "/login"
+  }
+
   render() {
 
     var idList = ["portal", "data", "api", "sparql", "gsa"];
@@ -31,7 +36,9 @@ class HeaderTwo extends Component {
     if (this.props.userinfo !== undefined){
       if (!this.props.userinfo.email) {
       headerLinks.push(
-        <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" style={sTwo}> Login
+        // None of Nav.Link, NavLink, or Link components are both functional and correct here. Use function calls as a shim
+        // not worth fixing until the React version is updated.
+        <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" onClick={this.routeToLogin} style={sTwo}> Login
         </Nav.Link>
       );
     } else {

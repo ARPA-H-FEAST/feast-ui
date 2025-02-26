@@ -674,7 +674,7 @@ export async function getLogoutResponse  ()  {
   const svcUrl = LocalConfig.apiHash.user_logout;
   const response = await fetch(svcUrl, requestOptions);
   const result = await response.json();
-  console.log("---> Logout response: ", result)
+  // console.log("---> Logout response: ", result)
   return result;
 
 }
