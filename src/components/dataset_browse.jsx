@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom/cjs/react-router-dom";
 import Searchbox from "./search_box";
 import Filter from "./filter";
 import { filterObjectList} from './util';
@@ -45,19 +46,33 @@ class DatasetBrowse extends Component {
   
 	updateData(searchQuery) {
  
-		let access_csrf = localStorage.getItem("access_csrf")
+	const access_csrf = localStorage.getItem("access_csrf")
+    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+    const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
+
+    const auth_url = id_token_values.iss
+
+    if (!credentials || !credentials.access_token) {
+        console.log("No user credentials located, redirecting")
+        // This doesn't work yet, but at least renders *something*
+        // see https://stackoverflow.com/a/45090151 for a possible workaround
+        return <Redirect to='/login' />
+    }
+
    	var reqObj = {"query":searchQuery};
 		const requestOptions = {
       	method: 'POST',
       	headers: {
         		'Content-Type': 'application/json',
-        		'X-CSRF-TOKEN': access_csrf
+        		'X-CSRFToken': access_csrf,
+                'Authorization': 'Bearer: ' + credentials.access_token,
+                'Iss-Oauth': JSON.stringify(auth_url),  // This address + "/userinfo/" can confirm login state on the backend
       	},
       	body: JSON.stringify(reqObj),
       	credentials: 'include'
 		};
 		//alert(JSON.stringify(reqObj));
-
+        // console.log("Found Authorization Bearer token: " + credentials.access_token)
   		const svcUrl = LocalConfig.apiHash.dataset_search;
    	fetch(svcUrl, requestOptions)
       	.then((res) => res.json())
@@ -72,6 +87,8 @@ class DatasetBrowse extends Component {
             }
             tmpState.objlist = result.recordlist;
             tmpState.statobj = result.stats;
+            // console.log("Got response " + JSON.stringify(result.recordlist))
+            // console.log("Got stats " + JSON.stringify(result.stats))
             this.setState(tmpState);
             //console.log("Request:",svcUrl);
         },
@@ -129,16 +146,19 @@ class DatasetBrowse extends Component {
 
     render() {
 
+        // if (this.state.isLoaded === false){
+        //      return <Loadingicon/>
+        // }
 		  if ("msg" in this.props.userInfo){  // TODO: Is "msg" ever included with successful user login?
-				//alert("msg in userinfo: forwarding");
-      		window.location.href = this.props.initObj["webroot"] + "/login";
+            // Redirect to "login" if user isn't logged in upon arrival
+            return <Redirect to="/login" />
     	  }
           const credentials = localStorage.getItem('userCredentials');
           if (credentials === null) {
             console.log("Credentials missing from user info " + JSON.stringify(this.props.userInfo))
             window.location.href = this.props.initObj["webroot"] + "/login";
           }
-        console.log("Rendering file list. User info is\n" + JSON.stringify(this.props.userInfo))
+        // console.log("Rendering file list. User info is\n" + JSON.stringify(this.props.userInfo))
 
 		  var filObjOne = filterObjectList(this.state.objlist, this.state.filterlist);
         var passedObjList = filObjOne.passedobjlist;

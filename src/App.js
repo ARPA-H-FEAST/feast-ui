@@ -12,14 +12,67 @@ import Loadingicon from "./components/loading_icon";
 import * as LocalConfig from "./components/local_config";
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-
 import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
 import Login from "./components/login";
+import { parseJwt } from "./utilities/parseJWT";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
+import { Button } from "react-bootstrap";
 
 import { appConfig } from "./configs/app_initial_config";
+
+async function pingUserInfo() {
+  const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+  if (!credentials || !credentials.access_token) {
+    console.log("No user information located - are you logged in?")
+    return
+  }
+  const targetURL = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/userinfo/"
+  console.log("Attempting userinfo endpoint: " + targetURL)
+  console.log("Using credentials: Bearer " + credentials.access_token)
+  const response = await fetch(targetURL, {
+    headers: {
+      "Authorization": "Bearer " + credentials.access_token
+    }
+  })
+  if (!response.ok) {
+    console.log("---> Response: Not OK!")
+  }
+  const result = await response.json()
+  console.log("---> Got USERINFO response " + JSON.stringify(result))
+}
+
+async function userRefreshToken() {
+  /* XXX // TODO
+  We must craft a useful URL, per example here: https://stackoverflow.com/a/27751200
+  However, that requires state from "login", both static (e.g. client ID) and dynamic
+  (e.g. code_verifier) content. Can use `localStorage` short term but that's not ideal
+  */
+  const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+  if (!credentials || !credentials.refresh_token) {
+    console.log("No user information located - are you logged in?")
+    return
+  }
+  const targetURL = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/token/"
+  console.log("Attempting userinfo endpoint: " + targetURL)
+  console.log("Using credentials: Bearer " + credentials.access_token)
+  const response = await fetch(targetURL, {
+    method: 'POST',
+    headers: {
+      "Authorization": "Bearer " + credentials.access_token
+    },
+    body: JSON.stringify({
+      grant_type: "refresh_token",
+      // XXXX
+    })
+  })
+  if (!response.ok) {
+    console.log("---> Response: Not OK!")
+  }
+  const result = await response.json()
+  console.log("---> Got USERINFO response " + JSON.stringify(result))
+}
 
 class App extends Component {
 
@@ -73,7 +126,7 @@ class App extends Component {
         console.log("===> ERROR: " + JSON.stringify(error))
         this.setState(
           {isLoaded: false, dialog: {msg: error}}
-        );
+      );
         console.log(JSON.stringify(this.state))
       })
   }
@@ -84,8 +137,17 @@ class App extends Component {
     this.setState({userinfo: newInformation})
   }
 
+  async handlePingUserInfo() {
+    await pingUserInfo()
+  }
+
   storeCredentials = (credentials) => {
     localStorage.setItem('userCredentials', JSON.stringify(credentials))
+    const idTokenValues = parseJwt(credentials.id_token)
+    localStorage.setItem('userIDTokenValues', JSON.stringify(idTokenValues))
+    localStorage.setItem('access_token', JSON.stringify(credentials.access_token))
+    // TODO
+    localStorage.setItem('refresh_token', JSON.stringify(credentials.refresh_token))
     this.forceUpdate()
    }
 
@@ -96,12 +158,16 @@ class App extends Component {
 
   render() {
 
-   const credentials = localStorage.getItem('userCredentials')
+   const credentials = JSON.parse(localStorage.getItem('userCredentials'))
    if (credentials !== null) {
-    console.log("Found CREDENTIALS:\n", credentials)
+    // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
+    // for (const key in credentials) {
+    //   console.log(key + ": " + credentials[key])
+    // }
     // console.table(["Current state", this.state])
    } else {
-    console.log("Empty credentials: " + credentials)
+    // Pass ?
+    // console.log("Empty credentials: " + credentials)
    }
 
 	 if (!this.state.isLoaded){
@@ -113,7 +179,7 @@ class App extends Component {
     }
     console.log("---> Error: User state alert constructor <---")
 		return <Alertdialog dialog={dialog} onClose={this.rerenderApp} />
-	 } 
+	 }	
 
     var app_ver = process.env.REACT_APP_APP_VERSION;
     // var data_ver = this.state.response.record.dataversion;
@@ -134,6 +200,10 @@ class App extends Component {
     initObj["webroot"] = "/gw-feast"
     this.state.response.record["webroot"] = "/gw-feast"
   }
+// NB: Reinstate this button between header two and the router for easy global access to user state in the console
+//   <div>
+//   <button className="btn btn-outline-secondary" onClick={this.handlePingUserInfo}>Ping User Info</button>
+// </div>
 
    return (
       <div>
