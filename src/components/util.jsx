@@ -71,6 +71,9 @@ export function getStarList(starCount){
 export function filterObjectList(objList, filterList) {
 
     var retObj = {filterinfo:{}, passedobjlist:[]};
+    if (!objList) {
+      return retObj
+    }
     for (var i in objList) {
       var obj = objList[i];
       var passCount = 0;

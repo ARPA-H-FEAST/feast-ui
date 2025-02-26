@@ -93,7 +93,7 @@ class App extends Component {
   }
 
 	getUserInfo () {
-    console.log("---> Getting user information <----")
+    // console.log("---> Getting user information <----")
     // const access_csrf = localStorage.getItem("access_csrf")
     const requestOptions = {
       method: 'GET',
@@ -109,7 +109,7 @@ class App extends Component {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log("userinfo\n", result);
+          // console.log("userinfo\n", result);
 			//  var tmpState = this.state;
           this.setState({userinfo: result, isLoaded: true})
           // tmpState.userinfo = result;
@@ -120,7 +120,7 @@ class App extends Component {
             // tmpState.dialog.msg = tmpState.response.error;
           }
           // this.setState(tmpState);
-          console.log("---> Exiting user info. Result was " + JSON.stringify(result))
+          // console.log("---> Exiting user info. Result was " + JSON.stringify(result))
         },
       ).catch((error) => {
         console.log("===> ERROR: " + JSON.stringify(error))
@@ -177,7 +177,6 @@ class App extends Component {
       closeButtonMsg: "Attempt reload?",
       noticeString: "Fatal error!"
     }
-    console.log("---> Error: User state alert constructor <---")
 		return <Alertdialog dialog={dialog} onClose={this.rerenderApp} />
 	 }	
 

@@ -23,8 +23,8 @@ export default function Tableview(props) {
 
   //initialState={{pagination: { paginationModel: {pageSize: 100,},},}}
   //pageSizeOptions={[10, 50, 100]}
-  console.log("cols-2",props.cols);
-  console.log("rows-2",props.rows);
+  // console.log("cols-2",props.cols);
+  // console.log("rows-2",props.rows);
   return (
     <Box sx={boxStyle}>
       <DataGrid sx={{ m: 2 }} 
