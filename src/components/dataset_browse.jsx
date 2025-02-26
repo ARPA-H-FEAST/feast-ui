@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom/cjs/react-router-dom";
 import Searchbox from "./search_box";
 import Filter from "./filter";
-import { filterObjectList} from './util';
+import { filterObjectList } from './util';
 import * as LocalConfig from "./local_config";
 import Loadingicon from "./loading_icon";
 import Alertdialog from './dialogbox';
@@ -15,7 +15,7 @@ import { Markup } from 'interweave';
 class DatasetBrowse extends Component {  
   
   state = {
-	 filterlist: [],
+	  filterlist: [],
     objlist:[],
     statobj:{},
     pageIdx:1,
@@ -32,14 +32,10 @@ class DatasetBrowse extends Component {
   };
 
   componentDidMount() {
-		//alert("in dataset_browse");
 		const queryParameters = new URLSearchParams(window.location.search);
-      var searchQuery = (queryParameters.get("query") === null ? "" : queryParameters.get("query"))
-      var tmpState = this.state;
-      tmpState.searchquery = searchQuery;
-      this.setState(tmpState);
+    var searchQuery = (queryParameters.get("query") === null ? "" : queryParameters.get("query"))
+    this.setState({searchquery: searchQuery});
 		this.updateData("");
-
    }
 
 
@@ -47,59 +43,64 @@ class DatasetBrowse extends Component {
 	updateData(searchQuery) {
  
 	const access_csrf = localStorage.getItem("access_csrf")
-    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-    const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
-
-    const auth_url = id_token_values.iss
-
-    if (!credentials || !credentials.access_token) {
-        console.log("No user credentials located, redirecting")
-        // This doesn't work yet, but at least renders *something*
-        // see https://stackoverflow.com/a/45090151 for a possible workaround
-        return <Redirect to='/login' />
-    }
-
-   	var reqObj = {"query":searchQuery};
-		const requestOptions = {
-      	method: 'POST',
-      	headers: {
-        		'Content-Type': 'application/json',
-        		'X-CSRFToken': access_csrf,
-                'Authorization': 'Bearer: ' + credentials.access_token,
-                'Iss-Oauth': JSON.stringify(auth_url),  // This address + "/userinfo/" can confirm login state on the backend
-      	},
-      	body: JSON.stringify(reqObj),
-      	credentials: 'include'
-		};
-		//alert(JSON.stringify(reqObj));
-        // console.log("Found Authorization Bearer token: " + credentials.access_token)
-  		const svcUrl = LocalConfig.apiHash.dataset_search;
-   	fetch(svcUrl, requestOptions)
-      	.then((res) => res.json())
-      	.then(
-        		(result) => {
-            console.log("RRR:", result);
-            var tmpState = this.state;
-            tmpState.isLoaded = true;          
-            if (result.status === 0){
-                tmpState.dialog.status = true;
-                tmpState.dialog.msg = result.error;
-            }
-            tmpState.objlist = result.recordlist;
-            tmpState.statobj = result.stats;
-            // console.log("Got response " + JSON.stringify(result.recordlist))
-            // console.log("Got stats " + JSON.stringify(result.stats))
-            this.setState(tmpState);
-            //console.log("Request:",svcUrl);
-        },
-        (error) => {
-          // console.log("Error on load: " + error)
+  const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+  const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
+  const auth_url = id_token_values.iss + "/userinfo/"
+  if (!credentials || !credentials.access_token) {
+      console.log("No user credentials located, redirecting")
+      // This doesn't work yet, but at least renders *something*
+      // see https://stackoverflow.com/a/45090151 for a possible workaround
+      return <Redirect to='/login' />
+  }
+  console.log("---> Authorization: Bearer: " + credentials.access_token)
+  console.log("---> Authorization API endpoint: " + auth_url)
+  var reqObj = {"query":searchQuery};
+	const requestOptions = {
+    	method: 'POST',
+    	headers: {
+      		'Content-Type': 'application/json',
+      		'X-CSRFToken': access_csrf,
+              'Authorization': 'Bearer: ' + credentials.access_token,
+              'Iss-Oauth': auth_url,  // This address confirms login state on the backend
+    	},
+    	body: JSON.stringify(reqObj),
+    	credentials: 'include'
+	};
+	//alert(JSON.stringify(reqObj));
+  // console.log("Found Authorization Bearer token: " + credentials.access_token)
+  const svcUrl = LocalConfig.apiHash.dataset_search;
+  fetch(svcUrl, requestOptions)
+    .then((res) => res.json())
+    .then(
+    	(result) => {
+        console.log("RRR:", result);
+        // var tmpState = this.state;
+        // tmpState.isLoaded = true;          
+        if (result.status === 0){
           this.setState({
-            isLoaded: true,
-            error,
-          });
+            dialog: {status: true, msg: result.msg},
+            objlist: []
+          })
+          // tmpState.dialog.status = true;
+          //   tmpState.dialog.msg = result.error;
         }
-      );
+        this.setState({objlist: result.recordlist, statobj: result.stats})
+        // tmpState.objlist = result.recordlist;
+        // tmpState.statobj = result.stats;
+        // console.log("Got response " + JSON.stringify(result.recordlist))
+        // console.log("Got stats " + JSON.stringify(result.stats))
+        // this.setState(tmpState);
+        //console.log("Request:",svcUrl);
+    },
+    )
+    .catch((error) => {
+      console.log("Error on load: " + error)
+      this.setState(
+        {
+          isLoaded: false,
+          dialog: {msg: error, status: false}
+        })}
+      )
   }
 
 
@@ -170,7 +171,8 @@ class DatasetBrowse extends Component {
             
         var batchSize = 20;
         var pageCount = parseInt(passedObjList.length/batchSize) + 1;
-        pageCount = (this.state.objlist.length > 0 ? pageCount : 0);
+        const len = this.state.objlist ? this.state.objlist.length : 0
+        pageCount = (len > 0 ? pageCount : 0);
 
         var startIdx = batchSize * (parseInt(this.state.pageIdx) - 1) + 1;
         var endIdx = startIdx + batchSize;
@@ -184,13 +186,15 @@ class DatasetBrowse extends Component {
             tmpList.push(h);
         }
         var resultSummary = ""
-        if ("total" in this.state.statobj){
+        if (this.state.statobj && "total" in this.state.statobj){
             resultSummary = "<b>" + this.state.statobj.total + "</b> files found";
             if (tmpList.length > 0){
                 resultSummary += ", <b>" + passedObjList.length + "</b> shown after filters: ";
                 resultSummary += tmpList.join("', '")
             }
             //resultSummary += ".";
+        } else {
+          resultSummary += "<b> No </b> files found"
         }
 
         var tableId = "tableone";
@@ -208,12 +212,32 @@ class DatasetBrowse extends Component {
 				tableRows.push(o)
         }
 
-
-
+        if (!this.state.objlist) {
+          return (
+            <div>
+                <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
+					 <div className="searchboxwrapper">
+                    <Searchbox initObj={this.props.initObj} 
+                        searchquery={this.state.searchquery}
+                        onSearch={this.handleSearch} 
+                        onKeyPress={this.handleKeyPress}
+                    />
+                </div>
+               
+                <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div>
+                <div className="statscn"> 
+						  <Markup content={resultSummary}/> 
+                </div>
+                <div className="searchresultscn">
+                    <Tableview cols={tableCols} rows={tableRows} />
+                </div>
+            </div>
+        )
+        }
 
         return (
             <div>
-                <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose}/>
+                <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
 					 <div className="searchboxwrapper">
                     <Searchbox initObj={this.props.initObj} 
                         searchquery={this.state.searchquery}
@@ -236,7 +260,7 @@ class DatasetBrowse extends Component {
                     />
                 </div>
                 <div className="searchresultscn">
-                    <Tableview cols={tableCols} rows={tableRows}/>
+                    <Tableview cols={tableCols} rows={tableRows} />
                 </div>
             </div>
         );
