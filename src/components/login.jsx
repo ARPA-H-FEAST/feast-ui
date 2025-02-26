@@ -9,7 +9,8 @@ import { touchRippleClasses } from "@mui/material";
 import NavigationButton from "./navigation_button";
 const oauth_url = process.env.REACT_APP_OAUTH_API_URL + "/authorize/"
 const oauth_token_url = process.env.REACT_APP_OAUTH_API_URL + "/token/"
-const client_id = "3dbf0ec5-29ed-4f2d-91ee-277def159782"
+const gw_sso_client_id = "3dbf0ec5-29ed-4f2d-91ee-277def159782"
+const internal_client_id = "Qi1bQKA6hJwUSb0RoMv4GapAgmNEgEr8fk2JLP7W"
 // const redirect_uri = "https://feast.mgpc.biochemistry.gwu.edu/gw-feast/callback/"
 const redirect_uri = "https://feast.mgpc.biochemistry.gwu.edu/gw-feast/"
 
@@ -22,22 +23,25 @@ async function oidcAuthorize() {
   console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
   console.log("Contacting OAuth server at url", oauth_url)
   const response = await fetch(
-    `${oauth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${client_id}`, {
+    `${oauth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${internal_client_id}`, {
       // mode: "cors",
       credentials: "include",
       // headers: {"Access-Control-Allow-Origin": "*"},
-      headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
+      // headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
+      headers: {"Access-Control-Allow-Origin": "*"},
       // headers: {"Access-Control-Allow-Origin": "https://login.microsoftonline.com"},
     }
-  )
+  ).catch((error) => {
+    console.log("ERROR: " + error)
+    return false 
+  })
   // console.log("---> OAuth response: ", response)
-  if (response.url) {
-    const url = new URL(response.url)
-    // console.log("Found redirect URL: ", url)
-    window.location.replace(url)
-  }
-  else { 
-    /* error handling */
+  if(response.ok) {
+    if (response.url) {
+      const url = new URL(response.url)
+      // console.log("Found redirect URL: ", url)
+      window.location.replace(url)
+    }
   }
 }
 
@@ -56,7 +60,7 @@ async function oidcGetToken(callback_code) {
         method: 'POST',
         body: JSON.stringify(
           {
-            client_id: client_id,
+            client_id: internal_client_id,
             code: callback_code,
             code_verifier: code_verifier,
             redirect_uri: redirect_uri,
@@ -79,7 +83,7 @@ async function oidcGetToken(callback_code) {
 }
 
 class Login extends Component {
-
+  
   state = {
     stage: -1,
     pageid:"login",
@@ -99,23 +103,26 @@ class Login extends Component {
   };
 
   handleDialogClose = () => {
-    var tmpState = this.state;
-    tmpState.dialog.status = false;
-    this.setState(tmpState);
+    this.setState({dialog: {status: false}})
+    // var tmpState = this.state;
+    // tmpState.dialog.status = false;
+    // this.setState(tmpState);
   }
 
   handleLoginDirect = () => {
     getLoginDirectResponse(loginFormDirect).then(result => {
       if (result.status === 0){
+        // console.log("===> Handling login, result was " + JSON.stringify(result))
         var tmpState = this.state;
         tmpState.dialog.status = true;
         tmpState.dialog.msg = <div><ul> {result.errorlist} </ul></div>;
         this.setState(tmpState);
         return;
       }
+      // console.log("===> Handling login, result was " + JSON.stringify(result))
       localStorage.setItem("access_csrf", getCookie('csrftoken'));
       // console.log("---> Got CSRF token " + localStorage.getItem("access_csrf"))
-      this.state.stage = 2;
+      this.setState({stage: 2})
       this.props.loginHandler(result)
     });
   }
@@ -139,7 +146,7 @@ class Login extends Component {
 
   render() {
 
-    console.log("---> Entering LOGIN: userinfo is\n" + JSON.stringify(this.props.userinfo))
+    // console.log("---> Entering LOGIN: userinfo is\n" + JSON.stringify(this.props.userinfo))
 
     // window.history.pushState({}, null, this.props.initObj["webroot"] + "/login");
 
