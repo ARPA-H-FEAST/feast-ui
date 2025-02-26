@@ -7,6 +7,11 @@ docker rmi feast-prototype-ui
 
 npm run build
 
+if [[ $? != 0 ]]; then
+    echo NPM build failed, exiting...
+    exit 0
+fi
+
 chmod -R 744 build
 
 docker build -t feast-prototype-ui .
