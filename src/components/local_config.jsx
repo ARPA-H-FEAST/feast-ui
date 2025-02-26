@@ -18,7 +18,7 @@ export const apiHash = {
     user_login_direct:process.env.REACT_APP_USER_URL + "/users/login/",
     user_logout:process.env.REACT_APP_USER_URL + "/users/logout/",
     user_info:process.env.REACT_APP_USER_URL + "/users/whoami/",
-    init_info:process.env.REACT_APP_USER_URL + "/users/init/",
+    // init_info:process.env.REACT_APP_USER_URL + "/users/init/",
 };
 
 
