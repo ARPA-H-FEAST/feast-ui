@@ -271,7 +271,7 @@ class Login extends Component {
 			 </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleLoginDirect}>Login via FEAST</button>
-            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
+            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
           </div>
         </div>
       );
@@ -286,7 +286,7 @@ class Login extends Component {
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.oidcAuthorize}>OIDC Authorize</button>
-            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
+            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
           </div>
         </div>
       )
@@ -302,7 +302,7 @@ class Login extends Component {
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleOIDCCodeExchange}>OIDC Exchange Code</button>
-            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuTokenExchange}>MS GWU Get token</button>
+            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuTokenExchange}>MS GWU Get token</button> */}
           </div>
         </div>
       )
