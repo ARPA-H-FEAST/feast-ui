@@ -129,9 +129,6 @@ class DatasetBrowse extends Component {
 
     render() {
 
-        if (this.state.isLoaded === false){
-             return <Loadingicon/>
-        }
 		  if ("msg" in this.props.userInfo){  // TODO: Is "msg" ever included with successful user login?
 				//alert("msg in userinfo: forwarding");
       		window.location.href = this.props.initObj["webroot"] + "/login";
