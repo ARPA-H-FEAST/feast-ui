@@ -12,11 +12,14 @@ import Loadingicon from "./components/loading_icon";
 import * as LocalConfig from "./components/local_config";
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
 import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
 import Login from "./components/login";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
+
+import { appConfig } from "./configs/app_initial_config";
 
 class App extends Component {
 
@@ -29,41 +32,12 @@ class App extends Component {
       };
 
   handleDialogClose = () => {
-    var tmpState = this.state;
-    tmpState.dialog.status = false;
-    this.setState(tmpState);
+    this.setState({dialog: {status: false}})
   }
 
   componentDidMount() {
-    this.getInit();
 		this.getUserInfo();
   }
-
-  getInit() {
-    const requestOptions = {
-      method: 'GET',
-    };
-  
-    const svcUrl = LocalConfig.apiHash.init_info;
-    console.log("---> Getting initial information " + svcUrl)
-    fetch(svcUrl, requestOptions)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log("Ajax response:", JSON.stringify(result));
-			 var tmpState = this.state;
-          tmpState.response = result;
-          tmpState.isLoaded = true;
-          if (tmpState.response.status === 0){
-            tmpState.dialog.status = true;
-            tmpState.dialog.msg = tmpState.response.error;
-          }
-          this.setState(tmpState);
-        },
-        (error) => {this.setState({ isLoaded: true, error,});}
-      );
-  }
-
 
 	getUserInfo () {
     console.log("---> Getting user information <----")
@@ -83,26 +57,31 @@ class App extends Component {
       .then(
         (result) => {
           console.log("userinfo\n", result);
-			 var tmpState = this.state;
-          tmpState.userinfo = result;
-          tmpState.isLoaded = true;
+			//  var tmpState = this.state;
+          this.setState({userinfo: result, isLoaded: true})
+          // tmpState.userinfo = result;
+          // tmpState.isLoaded = true;
           if (result.status === 0){
-            tmpState.dialog.status = true;
-            tmpState.dialog.msg = tmpState.response.error;
+            this.setState({dialog: {status: true}})
+            // tmpState.dialog.status = true;
+            // tmpState.dialog.msg = tmpState.response.error;
           }
-          this.setState(tmpState);
+          // this.setState(tmpState);
           console.log("---> Exiting user info. Result was " + JSON.stringify(result))
         },
-        (error) => {
-          this.setState({isLoaded: true,error,});
-        }
-      );
+      ).catch((error) => {
+        console.log("===> ERROR: " + JSON.stringify(error))
+        this.setState(
+          {isLoaded: false, dialog: {msg: error}}
+        );
+        console.log(JSON.stringify(this.state))
+      })
   }
 
   updateUserInfo = (newInformation) => {
-    let tmpState = this.state
-    tmpState.userinfo = newInformation
-    this.setState(tmpState)
+    // let tmpState = this.state
+    // tmpState.userinfo = newInformation
+    this.setState({userinfo: newInformation})
   }
 
   storeCredentials = (credentials) => {
@@ -110,10 +89,12 @@ class App extends Component {
     this.forceUpdate()
    }
 
+   rerenderApp = () => {
+    this.getUserInfo()
+    this.forceUpdate()
+   }
+
   render() {
-    if (!("response" in this.state)){
-      return <Loadingicon/>
-    }
 
    const credentials = localStorage.getItem('userCredentials')
    if (credentials !== null) {
@@ -123,9 +104,16 @@ class App extends Component {
     console.log("Empty credentials: " + credentials)
    }
 
-	 if (this.state.userinfo === undefined){
-		return <Loadingicon/>
-	 }	
+	 if (!this.state.isLoaded){
+    const dialog = {
+      status: true, 
+      msg: "Error contacting login server. Please contact admin at mazumder_lab@gwu.edu",
+      closeButtonMsg: "Attempt reload?",
+      noticeString: "Fatal error!"
+    }
+    console.log("---> Error: User state alert constructor <---")
+		return <Alertdialog dialog={dialog} onClose={this.rerenderApp} />
+	 } 
 
     var app_ver = process.env.REACT_APP_APP_VERSION;
     // var data_ver = this.state.response.record.dataversion;
@@ -135,7 +123,9 @@ class App extends Component {
 	//  var app_ver = "xx";
 
   // TODO: Webroot captures URLs here
-	var initObj = this.state.response.record;
+  const config = appConfig()
+
+  var initObj = config;
 	let webRoot = initObj["webroot"];
 	// console.log("InitObj", initObj);
 
@@ -147,8 +137,8 @@ class App extends Component {
 
    return (
       <div>
-      <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose}/>
-      <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj}/>
+      <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
+      <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
 		<div className="versioncn">
 			<HeaderTwo
        		moduleTitle={moduleTitle}
@@ -200,13 +190,15 @@ class App extends Component {
            <Route
                path={webRoot}
                render={(props) => (
-                 <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
+              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
+              // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
                )}
            />
 			  <Route
                path={webRoot +  "/"}
                render={(props) => (
-                 <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
+              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
+              // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
                )}
            />
            <Redirect from={"*"} to={"/gw-feast/login/"} />
