@@ -20,16 +20,17 @@ class Alertdialog extends Component {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Alert!"}
+            { this.props.dialog.noticeString ? this.props.dialog.noticeString : "Alert!" }
           </DialogTitle>
+
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {this.props.dialog.msg}
+              { this.props.dialog.msg }
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.props.onClose} color="primary" autoFocus>
-              Close
+              { this.props.dialog.closeButtonMsg ? this.props.dialog.closeButtonMsg : "Close" }
             </Button>
           </DialogActions>
         </Dialog>
