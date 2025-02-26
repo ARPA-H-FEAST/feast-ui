@@ -31,7 +31,9 @@ export async function generatePKCE() {
   
   if (!sessionStorage.getItem('code_verifier') | !sessionStorage.getItem('code_challenge')){
 
-    const randomizedLength = getRandomInt(43, 128);
+    // MS Seems to require this to be 43 long
+    // const randomizedLength = getRandomInt(43, 128);
+    const randomizedLength = 43;
     // Generate a random code verifier
     console.log("---> Got randomized length: ", randomizedLength);
     const codeVerifier = generateRandomString(randomizedLength);
