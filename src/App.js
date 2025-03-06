@@ -16,6 +16,7 @@ import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
 import Login from "./components/login";
+import FHIRInterface from "./components/fhir_interface";
 import { parseJwt } from "./utilities/parseJWT";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 import { Button } from "react-bootstrap";
@@ -158,6 +159,8 @@ class App extends Component {
 
   render() {
 
+    console.log("---> Rendering APP <---")
+
    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
    if (credentials !== null) {
     // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
@@ -230,6 +233,12 @@ class App extends Component {
               <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
             )}
           />
+      <Route 
+        path={webRoot + '/fhir-interface'}
+        render={(props) => {
+          <FHIRInterface />
+        }}
+      />
            <Route
             path={webRoot + "/callback"}
             render={(props) => (
