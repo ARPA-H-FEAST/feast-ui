@@ -19,7 +19,12 @@ export function appConfig() {
             "id": "about",
             "label": "About",
             "url": "/gw-feast/static/about"
-        }
+        },
+        {
+            "id": "fhir",
+            "label": "FHIR",
+            "url": "/gw-feast/fhir-interface"
+        },
     ],
     "fileuploadformats": [],
     "fileuploadqc": [],
@@ -46,8 +51,8 @@ export function appConfig() {
         "funding": "Funded by ....",
         "logos": [
             "/imglib/logo-gwu.png",
-            "/imglib/temple.png",
-            "/imglib/embleema.png"
+            // "/imglib/temple.png",
+            // "/imglib/embleema.png"
         ]
     },
     "versionlist": [
