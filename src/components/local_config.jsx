@@ -15,11 +15,12 @@ export const apiHash = {
     dataset_history_list:process.env.REACT_APP_API_URL + "/dataset/historylist",
     dataset_history_detail:process.env.REACT_APP_API_URL + "/dataset/historydetail",
     dataset_static_content:process.env.REACT_APP_API_URL + "/dataset/pagecn",
-    user_login_direct:process.env.REACT_APP_USER_URL + "/users/login/",
-    user_logout:process.env.REACT_APP_USER_URL + "/users/logout/",
-    user_info:process.env.REACT_APP_USER_URL + "/users/whoami/",
-    // init_info:process.env.REACT_APP_USER_URL + "/users/init/",
-    oauth_user_info:process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/userinfo/"
+    user_login_direct:process.env.REACT_APP_SMART_URL + "/users/login/",
+    user_logout:process.env.REACT_APP_SMART_URL + "/users/logout/",
+    user_info:process.env.REACT_APP_SMART_URL + "/users/whoami/",
+    // init_info:process.env.REACT_APP_SMART_URL + "/users/init/",
+    oauth_user_info:process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/userinfo/",
+    fhir_endpoint:process.env.REACT_APP_SMART_URL + "/api/fhir-query/"
 };
 
 
