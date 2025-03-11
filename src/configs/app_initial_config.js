@@ -8,7 +8,7 @@ export function appConfig() {
         {
             "id": "home",
             "label": "Home",
-            "url": "/gw-feast"
+            "url": "/gw-feast/browse"
         },
         {
             "id": "faq",
@@ -22,7 +22,7 @@ export function appConfig() {
         },
         {
             "id": "fhir",
-            "label": "FHIR",
+            "label": "SMART on FHIR",
             "url": "/gw-feast/fhir-interface"
         },
     ],
