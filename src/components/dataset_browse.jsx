@@ -42,64 +42,61 @@ class DatasetBrowse extends Component {
   
 	updateData(searchQuery) {
  
-	const access_csrf = localStorage.getItem("access_csrf")
-  const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-  const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
-  const auth_url = id_token_values.iss + "/userinfo/"
-  if (!credentials || !credentials.access_token) {
+    const access_csrf = localStorage.getItem("access_csrf")
+    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+    const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
+    if (!credentials || !credentials.access_token) {
       console.log("No user credentials located, redirecting")
       // This doesn't work yet, but at least renders *something*
       // see https://stackoverflow.com/a/45090151 for a possible workaround
       return <Redirect to='/login' />
-  }
-  console.log("---> Authorization: Bearer: " + credentials.access_token)
-  console.log("---> Authorization API endpoint: " + auth_url)
-  var reqObj = {"query":searchQuery};
-	const requestOptions = {
-    	method: 'POST',
-    	headers: {
-      		'Content-Type': 'application/json',
-      		'X-CSRFToken': access_csrf,
-              'Authorization': 'Bearer: ' + credentials.access_token,
-              'Iss-Oauth': auth_url,  // This address confirms login state on the backend
-    	},
-    	body: JSON.stringify(reqObj),
-    	credentials: 'include'
-	};
-	//alert(JSON.stringify(reqObj));
-  // console.log("Found Authorization Bearer token: " + credentials.access_token)
-  const svcUrl = LocalConfig.apiHash.dataset_search;
-  fetch(svcUrl, requestOptions)
-    .then((res) => res.json())
-    .then(
-    	(result) => {
-        console.log("RRR:", result);
-        // var tmpState = this.state;
-        // tmpState.isLoaded = true;          
-        if (result.status === 0){
+    }
+    const auth_url = id_token_values.iss + "/userinfo/"
+
+    console.log("---> Authorization: Bearer: " + credentials.access_token)
+    console.log("---> Authorization API endpoint: " + auth_url)
+    var reqObj = { "query": searchQuery };
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': access_csrf,
+        'Authorization': 'Bearer: ' + credentials.access_token,
+        'Iss-Oauth': auth_url,  // This address confirms login state on the backend
+      },
+      body: JSON.stringify(reqObj),
+      credentials: 'include'
+    };
+    const svcUrl = LocalConfig.apiHash.dataset_search;
+    fetch(svcUrl, requestOptions)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          console.log("RRR:", result);
+    // var tmpState = this.state;
+    // tmpState.isLoaded = true;          
+          if (result.status !== 0) {
+            // Set 'success' to zero
+            // Error handling here
+            this.setState({
+              dialog: { status: true, msg: result.msg },
+              objlist: []
+            })
+          }
           this.setState({
-            dialog: {status: true, msg: result.msg},
-            objlist: []
+            objlist: result.recordlist,
+            statobj: result.stats
           })
-          // tmpState.dialog.status = true;
-          //   tmpState.dialog.msg = result.error;
-        }
-        this.setState({objlist: result.recordlist, statobj: result.stats})
-        // tmpState.objlist = result.recordlist;
-        // tmpState.statobj = result.stats;
-        // console.log("Got response " + JSON.stringify(result.recordlist))
-        // console.log("Got stats " + JSON.stringify(result.stats))
-        // this.setState(tmpState);
-        //console.log("Request:",svcUrl);
-    },
-    )
-    .catch((error) => {
-      console.log("Error on load: " + error)
-      this.setState(
-        {
-          isLoaded: false,
-          dialog: {msg: error, status: false}
-        })}
+        },
+      )
+      .catch((error) => {
+        console.log("Error on load: " + error)
+        this.setState(
+          {
+            isLoaded: false,
+            dialog: { msg: error, status: false }
+          })
+      }
       )
   }
 
@@ -137,6 +134,10 @@ class DatasetBrowse extends Component {
         this.setState({ filterlist: tmpList });
     };
 
+    handleFilterStateUpdate = (comboValue) => {
+      console.log("---> Updating state for " + JSON.stringify(comboValue))
+    }
+
     handleFilterIcon = () => {
         $(".filterboxwrapper").toggle();
     };
@@ -162,40 +163,41 @@ class DatasetBrowse extends Component {
         // console.log("Rendering file list. User info is\n" + JSON.stringify(this.props.userInfo))
 
 		  var filObjOne = filterObjectList(this.state.objlist, this.state.filterlist);
-        var passedObjList = filObjOne.passedobjlist;
-        var passedCount = passedObjList.length;
-        //var filterInfo = filObjOne.filterinfo;
-    
-        var filObjTwo = filterObjectList(passedObjList, []);
-        var filterInfo = filObjTwo.filterinfo;
-            
-        var batchSize = 20;
-        var pageCount = parseInt(passedObjList.length/batchSize) + 1;
-        const len = this.state.objlist ? this.state.objlist.length : 0
-        pageCount = (len > 0 ? pageCount : 0);
+      var passedObjList = filObjOne.passedobjlist;
+      var passedCount = passedObjList.length;
+      //var filterInfo = filObjOne.filterinfo;
 
-        var startIdx = batchSize * (parseInt(this.state.pageIdx) - 1) + 1;
-        var endIdx = startIdx + batchSize;
-        endIdx = (endIdx > passedCount ? passedCount : endIdx);
+      var filObjTwo = filterObjectList(passedObjList, []);
+      var filterInfo = filObjTwo.filterinfo;
 
-        var filterHideFlag = "block";
+      var batchSize = 20;
+      var pageCount = parseInt(passedObjList.length / batchSize) + 1;
+      const len = this.state.objlist ? this.state.objlist.length : 0
+      pageCount = (len > 0 ? pageCount : 0);
 
-        var tmpList = [];
-        for (var i in this.state.filterlist){
-            var h = "<b>" + this.state.filterlist[i].split("|")[1] + "</b>";
-            tmpList.push(h);
+      var startIdx = batchSize * (parseInt(this.state.pageIdx) - 1) + 1;
+      var endIdx = startIdx + batchSize;
+      endIdx = (endIdx > passedCount ? passedCount : endIdx);
+
+      var filterHideFlag = "block";
+
+      var tmpList = [];
+      for (var i in this.state.filterlist) {
+        var h = "<b>" + this.state.filterlist[i].split("|")[1] + "</b>";
+        tmpList.push(h);
+      }
+      var resultSummary = ""
+      // XXX console.log("State obj: " + JSON.stringify(passedObjList))
+      if (this.state.statobj && "total" in this.state.statobj) {
+        resultSummary = "<b>" + this.state.statobj.total + "</b> files found";
+        if (tmpList.length > 0) {
+          resultSummary += ", <b>" + passedObjList.length + "</b> shown after filters: ";
+          resultSummary += tmpList.join("', '")
         }
-        var resultSummary = ""
-        if (this.state.statobj && "total" in this.state.statobj){
-            resultSummary = "<b>" + this.state.statobj.total + "</b> files found";
-            if (tmpList.length > 0){
-                resultSummary += ", <b>" + passedObjList.length + "</b> shown after filters: ";
-                resultSummary += tmpList.join("', '")
-            }
-            //resultSummary += ".";
-        } else {
-          resultSummary += "<b> No </b> files found"
-        }
+        //resultSummary += ".";
+      } else {
+        resultSummary += "<b> No </b> files found"
+      }
 
         var tableId = "tableone";
         var idField = "filename";
@@ -204,12 +206,16 @@ class DatasetBrowse extends Component {
         for (var i in passedObjList){
             var obj = passedObjList[i];
             var o = {};
-            for (var j in tableCols){
-                var f = (tableCols[j]["field"] === "id" ? idField : tableCols[j]["field"])
-                o[tableCols[j]["field"]] = obj[f]
-            }
-            o["detail"] =  {"bcoid":obj["bcoid"], "label":"view details"};
-				tableRows.push(o)
+            // XXX console.log("Exploring tableCol object: " + JSON.stringify(obj))
+          for (var j in tableCols){
+            // XXX console.log("tableCols indexed item? ---> " + JSON.stringify(tableCols[j]))
+            var f = (tableCols[j]["field"] === "id" ? idField : tableCols[j]["field"])
+            // XXX console.log("Pulled 'f' value: " + JSON.stringify(f))
+            o[tableCols[j]["field"]] = obj[f]
+          }
+          o["id"] = obj["file_represented"]
+          o["detail"] =  {"bcoid":obj["bcoid"]};
+				  tableRows.push(o)
         }
 
         if (!this.state.objlist) {
@@ -235,35 +241,36 @@ class DatasetBrowse extends Component {
         )
         }
 
-        return (
-            <div>
-                <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
-					 <div className="searchboxwrapper">
-                    <Searchbox initObj={this.props.initObj} 
-                        searchquery={this.state.searchquery}
-                        onSearch={this.handleSearch} 
-                        onKeyPress={this.handleKeyPress}
-                    />
-                </div>
-               
-                <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div>
-                <div className="statscn"> 
-						  <Markup content={resultSummary}/> 
-                </div>
-                <div className="filterboxwrapper">
-                    <Filter
-                        filterinfo={filterInfo}
-                        filterlist={this.state.filterlist}
-                        resultcount={this.state.objlist.length}
-                        resultSummary={resultSummary}
-                        handleFilterApply = {this.handleFilterApply}
-                    />
-                </div>
-                <div className="searchresultscn">
-                    <Tableview cols={tableCols} rows={tableRows} />
-                </div>
-            </div>
-        );
+      return (
+        <div>
+          <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
+          <div className="searchboxwrapper">
+            <Searchbox initObj={this.props.initObj}
+              searchquery={this.state.searchquery}
+              onSearch={this.handleSearch}
+              onKeyPress={this.handleKeyPress}
+            />
+          </div>
+
+          <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div>
+          <div className="statscn">
+            <Markup content={resultSummary} />
+          </div>
+          <div className="filterboxwrapper">
+            <Filter
+              filterinfo={filterInfo}
+              filterlist={this.state.filterlist}
+              resultcount={this.state.objlist.length}
+              resultSummary={resultSummary}
+              handleFilterApply={this.handleFilterApply}
+              handleFilterStateUpdate={this.handleFilterStateUpdate}
+            />
+          </div>
+          <div className="searchresultscn">
+            <Tableview cols={tableCols} rows={tableRows} />
+          </div>
+        </div>
+      );
     }
 }
 
