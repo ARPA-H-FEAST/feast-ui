@@ -25,13 +25,14 @@ async function oidcAuthorize() {
   const code_verifier = sessionStorage.getItem('code_verifier')
 
   console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
-  console.log("FEAST OAuth: Contacting OAuth server at url", internal_oauth_auth_url)
+  console.log("FEAST OAuth: Contacting OAuth server at url: ", internal_oauth_auth_url)
+  console.log("FEAST OAuth: Using client ID: ", internal_oauth_client_id)
   const response = await fetch(
     `${internal_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${internal_oauth_client_id}`, {
       // mode: "cors",
       credentials: "include",
-      // headers: {"Access-Control-Allow-Origin": "*"},
-      headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
+      // headers: {"X-CSRFToken": "*"},
+      // headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
       // headers: {"Access-Control-Allow-Origin": "https://login.microsoftonline.com"},
     }
   ).catch((error) => {
@@ -271,7 +272,7 @@ class Login extends Component {
 			 </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleLoginDirect}>Login via FEAST</button>
-            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
           </div>
         </div>
       );
@@ -286,7 +287,7 @@ class Login extends Component {
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.oidcAuthorize}>OIDC Authorize</button>
-            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
           </div>
         </div>
       )
