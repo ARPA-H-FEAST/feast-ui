@@ -106,6 +106,7 @@ class App extends Component {
       credentials: 'include'
     };
     const svcUrl = LocalConfig.apiHash.user_info;
+    // console.log("---> Contacting login server at " + svcUrl)
     fetch(svcUrl, requestOptions)
       .then((res) => res.json())
       .then(
@@ -161,17 +162,17 @@ class App extends Component {
 
     console.log("---> Rendering APP <---")
 
-   const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-   if (credentials !== null) {
-    // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
-    // for (const key in credentials) {
-    //   console.log(key + ": " + credentials[key])
-    // }
-    // console.table(["Current state", this.state])
-   } else {
-    // Pass ?
-    // console.log("Empty credentials: " + credentials)
-   }
+    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+    if (credentials !== null) {
+     // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
+     // for (const key in credentials) {
+     //   console.log(key + ": " + credentials[key])
+     // }
+     // console.table(["Current state", this.state])
+    } else {
+     // Pass ?
+     // console.log("Empty credentials: " + credentials)
+    }
 
 	 if (!this.state.isLoaded){
     const dialog = {
@@ -209,16 +210,19 @@ class App extends Component {
 
    return (
       <div>
-      <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
-      <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
-		<div className="versioncn">
-			<HeaderTwo
+        <div style={{display: 'fluid'}}>
+        <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
+        <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
+        <HeaderTwo
        		moduleTitle={moduleTitle}
         		appVer={app_ver}
         		initObj={initObj}
         		userinfo={this.state.userinfo}
       	/>
-		</div>
+        </div>
+		{/* <div className="versioncn" style={{display: 'fluid'}}>
+			
+		</div> */}
       <Router>
         <Switch>
 			<Route
@@ -235,9 +239,11 @@ class App extends Component {
           />
       <Route 
         path={webRoot + '/fhir-interface'}
-        render={(props) => {
-          <FHIRInterface />
-        }}
+        render={(props) => (
+          <div className="fhirInterface">
+            <FHIRInterface userinfo={this.state.userinfo} />
+          </div>
+        )}
       />
            <Route
             path={webRoot + "/callback"}
