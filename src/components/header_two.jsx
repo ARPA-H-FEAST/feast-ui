@@ -50,10 +50,13 @@ class HeaderTwo extends Component {
 
     headerLinks = headerLinks.reverse();
     var sFour = {width:"50%"};
+
+    // <div className="rightblock" style={sFour}>
+
     return (
-        <div className="rightblock" style={sFour}>
+        <Container fluid>
           {headerLinks} 
-        </div>  
+        </Container>  
     );
     }
   }
