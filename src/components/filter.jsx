@@ -3,32 +3,35 @@ import { Markup } from 'interweave';
 
 
 class Filter extends Component {
-  
 
   render() {
     var filterInfo = this.props.filterinfo;
-
+    // XXX
+    console.log("---> Rendering filter <---")
+    console.log("---> Filter info: " + JSON.stringify(filterInfo))
 
     var divList = [];
     var catList = Object.keys(filterInfo).sort()
-    if (catList.indexOf("species") !== -1){
-        const idx = catList.indexOf("species");
-        const x = catList.splice(idx, 1);
-        catList.unshift("species");
-    }
+    // if (catList.indexOf("species") !== -1){
+    //     const idx = catList.indexOf("species");
+    //     const x = catList.splice(idx, 1);
+    //     catList.unshift("species");
+    // }
 
     for (var c in catList) {
       var catName = catList[c];
+      console.log("Handling category: " + catName)
       var catNameLbl = catName.substr(0,1).toUpperCase() + catName.substr(1);
       catNameLbl = catNameLbl.replace("_", " ");
       var rList = [];
-      var countDict = filterInfo[catName];
-      var catValList = Object.keys(countDict).sort();
-      //for (var catVal in countDict){
+      var catValues = filterInfo[catName];
+      var catValList = Object.keys(catValues).sort();
+      //for (var catVal in catValues){
       for (var j in catValList){
         var catVal = catValList[j];
-        var count = countDict[catVal]
+        var count = catValues[catVal]
         var combo = catName + "|" + catVal;
+        console.log("---> Working with 'combo' + " + combo)
         var catValLbl = catVal.substr(0,1).toUpperCase() + catVal.substr(1);
         if (catName === "file_type"){
           catValLbl = catVal.toUpperCase();
@@ -37,7 +40,8 @@ class Filter extends Component {
         var isChecked = (this.props.filterlist.indexOf(combo) === -1 ? false : true)
         rList.push(<tr>
             <td valign="top" style={{paddingLeft:"10px"}}>
-              <input name="filtervalue" type="checkbox" checked={isChecked} value={combo} onClick={this.props.handleFilterApply}/></td>
+              {/* <input name="filtervalue" type="checkbox" checked={isChecked} value={combo} /></td> */}
+              <input name="filtervalue" type="checkbox" checked={isChecked} value={combo} onClick={this.props.handleFilterStateUpdate}/></td>
             <td valign="top" style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({count})</td>
           </tr>);
       }
