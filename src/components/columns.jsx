@@ -29,7 +29,7 @@ export function getColumns(key, initObj){
         renderCell: (params) => (
           	<span>
             	<Link className="reglink" to={{pathname: initObj["webroot"] + "/detail/" + params.value.bcoid}}>
-               	{params.value.label}
+               	View details
               	</Link>
             </span>
         ),
