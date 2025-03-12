@@ -46,39 +46,35 @@ class DatasetDetail extends Component {
 
 
 
-  fetchPageData(reqObj){
+  fetchPageData = async (reqObj) => {
 
-		let access_csrf = localStorage.getItem("access_csrf")
+		// let access_csrf = localStorage.getItem("access_csrf")
+    console.log("---> Getting details for BCO. reqObj: " + JSON.stringify(reqObj))
+    const accessToken = JSON.parse(localStorage.getItem('access_token'))
+    const csrfToken = localStorage.getItem('access_csrf')
 		const requestOptions = {
       	method: 'POST',
+        credentials: 'include',
       	headers: {
         		'Content-Type': 'application/json',
-        		'X-CSRF-TOKEN': access_csrf
+            // 'Authorization': 'Bearer: ' + accessToken, // XXX FIXME: Django is falling back on session ID here...
+        		'X-CSRFToken': csrfToken,
       	},
       	body: JSON.stringify(reqObj),
-      	credentials: 'include'
     	};
 		const svcUrl = LocalConfig.apiHash.dataset_detail;
-    	fetch(svcUrl, requestOptions).then((res) => res.json()).then(
-        (result) => {
-            //console.log("Request:",svcUrl);
-            console.log("Ajax response:", result);
-            var tmpState = this.state;
-            tmpState.response = result;
-            tmpState.bco = result.bco;
-            tmpState.fileobjlist = result.fileobjlist;
-				tmpState.isLoaded = true;          
-            if (tmpState.response.status === 0){
-                tmpState.dialog.status = true;
-                tmpState.dialog.msg = tmpState.response.error;
-            }
-            this.setState(tmpState);
-        },
-        (error) => { 
-            this.setState({isLoaded: true,error,});
-        }
-    );
-
+    const response = await fetch(svcUrl, requestOptions)
+    if (!response.ok) {
+      console.log("---> Data details: " + response.error)
+    }
+    const result = await response.json()
+    console.log("---> Data View: Got response " + JSON.stringify(result))
+    this.setState({
+      // response: result,
+      bco: result.bco,
+      fileoblist: result.fileobjlist,
+      loaded: true,
+    })
   }
 
 
