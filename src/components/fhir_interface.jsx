@@ -74,8 +74,8 @@ class FHIRInterface extends Component {
         // see https://stackoverflow.com/a/45090151 for a possible workaround
         return <Redirect to='/login' />
     }
-    console.log("---> Authorization: Bearer: " + credentials.access_token)
-    console.log("---> Authorization API endpoint: " + auth_url)
+    // console.log("---> Authorization: Bearer: " + credentials.access_token)
+    // console.log("---> Authorization API endpoint: " + auth_url)
     const queryString = "query/?q=Patient"
     const requestOptions = {
         method: 'GET',

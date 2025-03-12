@@ -53,8 +53,8 @@ class DatasetBrowse extends Component {
     }
     const auth_url = id_token_values.iss + "/userinfo/"
 
-    console.log("---> Authorization: Bearer: " + credentials.access_token)
-    console.log("---> Authorization API endpoint: " + auth_url)
+    // console.log("---> Authorization: Bearer: " + credentials.access_token)
+    // console.log("---> Authorization API endpoint: " + auth_url)
     var reqObj = { "query": searchQuery };
     const requestOptions = {
       method: 'POST',
@@ -72,7 +72,7 @@ class DatasetBrowse extends Component {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log("RRR:", result);
+          // console.log("RRR:", result);
     // var tmpState = this.state;
     // tmpState.isLoaded = true;          
           if (result.status !== 0) {
@@ -124,7 +124,7 @@ class DatasetBrowse extends Component {
 
 
     handleFilterReset = () => {
-        $('input[name="filtervalue"]:checkbox:checked').prop("checked", false);
+        $('input[name="filtervalue"]:checkbox').prop("checked", false);
         this.setState({ filterlist: [] });
     };
 
@@ -134,16 +134,9 @@ class DatasetBrowse extends Component {
         this.setState({ filterlist: tmpList });
     };
 
-    handleFilterStateUpdate = (comboValue) => {
-      console.log("---> Updating state for " + JSON.stringify(comboValue))
-    }
-
     handleFilterIcon = () => {
         $(".filterboxwrapper").toggle();
     };
-
-
-
 
 
     render() {
@@ -192,7 +185,7 @@ class DatasetBrowse extends Component {
         resultSummary = "<b>" + this.state.statobj.total + "</b> files found";
         if (tmpList.length > 0) {
           resultSummary += ", <b>" + passedObjList.length + "</b> shown after filters: ";
-          resultSummary += tmpList.join("', '")
+          resultSummary += "'" + tmpList.join("', '") + "'"
         }
         //resultSummary += ".";
       } else {
@@ -203,6 +196,7 @@ class DatasetBrowse extends Component {
         var idField = "filename";
         var tableCols = getColumns(tableId, this.props.initObj);
         var tableRows = [];
+        // XXX console.log("---> Building table. Total file count: " + passedObjList.length)
         for (var i in passedObjList){
             var obj = passedObjList[i];
             var o = {};
@@ -263,7 +257,7 @@ class DatasetBrowse extends Component {
               resultcount={this.state.objlist.length}
               resultSummary={resultSummary}
               handleFilterApply={this.handleFilterApply}
-              handleFilterStateUpdate={this.handleFilterStateUpdate}
+              handleFilterReset={this.handleFilterReset}
             />
           </div>
           <div className="searchresultscn">
