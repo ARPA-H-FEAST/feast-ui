@@ -10,7 +10,7 @@ import $ from "jquery";
 import Tableview from "./table";
 import {getColumns} from "./columns";
 import { Markup } from 'interweave';
-
+import { Card, CardContent } from "@mui/material";
 
 class DatasetBrowse extends Component {  
   
@@ -196,20 +196,26 @@ class DatasetBrowse extends Component {
         var idField = "filename";
         var tableCols = getColumns(tableId, this.props.initObj);
         var tableRows = [];
-        // XXX console.log("---> Building table. Total file count: " + passedObjList.length)
+        // console.log("---> Building table. Total file count: " + passedObjList.length)
         for (var i in passedObjList){
             var obj = passedObjList[i];
             var o = {};
-            // XXX console.log("Exploring tableCol object: " + JSON.stringify(obj))
+            // console.log("Exploring tableCol object: " + JSON.stringify(obj))
           for (var j in tableCols){
             // XXX console.log("tableCols indexed item? ---> " + JSON.stringify(tableCols[j]))
             var f = (tableCols[j]["field"] === "id" ? idField : tableCols[j]["field"])
             // XXX console.log("Pulled 'f' value: " + JSON.stringify(f))
             o[tableCols[j]["field"]] = obj[f]
           }
-          o["id"] = obj["file_represented"]
           o["detail"] =  {"bcoid":obj["bcoid"]};
-				  tableRows.push(o)
+          for(const idx in obj["files_represented"]) {
+            // Deep copies to provide unique rows per filename
+            const clonedObject = JSON.parse(JSON.stringify(o))
+            const fileName = obj["files_represented"][idx]
+            // console.log("---> Found file name " + fileName)
+            clonedObject["id"] = fileName
+            tableRows.push(clonedObject)
+          }
         }
 
         if (!this.state.objlist) {
