@@ -207,7 +207,7 @@ class DatasetBrowse extends Component {
             // XXX console.log("Pulled 'f' value: " + JSON.stringify(f))
             o[tableCols[j]["field"]] = obj[f]
           }
-          o["detail"] =  {"bcoid":obj["bcoid"]};
+          o["detail"] =  { "bcoid": obj["bcoid"], "description": obj["usability_domain"]};
           for(const idx in obj["files_represented"]) {
             // Deep copies to provide unique rows per filename
             const clonedObject = JSON.parse(JSON.stringify(o))
