@@ -49,8 +49,7 @@ class DatasetDetail extends Component {
   fetchPageData = async (reqObj) => {
 
 		// let access_csrf = localStorage.getItem("access_csrf")
-    console.log("---> Getting details for BCO. reqObj: " + JSON.stringify(reqObj))
-    const accessToken = JSON.parse(localStorage.getItem('access_token'))
+    // console.log("---> Getting details for BCO. reqObj: " + JSON.stringify(reqObj))
     const csrfToken = localStorage.getItem('access_csrf')
 		const requestOptions = {
       	method: 'POST',
@@ -68,11 +67,11 @@ class DatasetDetail extends Component {
       console.log("---> Data details: " + response.error)
     }
     const result = await response.json()
-    console.log("---> Data View: Got response " + JSON.stringify(result))
+    // console.log("---> Data View: Got fileobjlist " + JSON.stringify(result.fileobjlist))
     this.setState({
-      // response: result,
+      response: "success",
       bco: result.bco,
-      fileoblist: result.fileobjlist,
+      fileobjlist: result.fileobjlist,
       loaded: true,
     })
   }
@@ -89,20 +88,26 @@ class DatasetDetail extends Component {
 	handleDownloadFile = (e) => {
       e.preventDefault();
       var fileName = e.target.id;
-      var reqObj = {"filename":fileName};
+      var reqObj = {
+        "filename": e.target.id,
+        "bcoid": this.props.bcoId,
+      };
 		
-		let access_csrf = localStorage.getItem("access_csrf")
+		const access_csrf = localStorage.getItem("access_csrf")
+    // TODO: Still using session information rather than OAuth JWT
+
    	const requestOptions = {
       	method: 'POST',
       	headers: {
          	'Content-Type': 'application/json',
-         	'X-CSRF-TOKEN': access_csrf
+         	'X-CSRFToken': access_csrf,
       	},
       	body: JSON.stringify(reqObj),
       	credentials: 'include'
    	};
    	const svcUrl = LocalConfig.apiHash.dataset_download;
 		fetch(svcUrl, requestOptions).then((res) => res.blob()).then( (result) => {
+      console.log("---> Downloading file by name " + fileName)
 		 		download(new Blob([result]), fileName);
 		 	}, 
 		 	(error) => { this.setState({isLoaded: true,error,}); }
@@ -154,10 +159,10 @@ class DatasetDetail extends Component {
 	var downloadItems = [];
 	for (var i in this.state.fileobjlist){
 		var fileObj = this.state.fileobjlist[i];
-    	var fileName = fileObj["filename"];
+    var fileName = fileObj["filename"];
 		downloadItems.push(
 			<li>
-			<Link id={fileName} to={fileName} className="reglink" onClick={this.handleDownloadFile}>{fileName}</Link>
+			<Link id={fileName} to={fileName} bco={this.state.bco} className="reglink" onClick={this.handleDownloadFile}>{fileName}</Link>
 			</li>);
   	}
 
@@ -206,7 +211,7 @@ class DatasetDetail extends Component {
         <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose}/>
         <div className="leftblock" 
           style={{width:"100%", margin:"20px 0px 0px 0px"}}>
-          <ul className="nav nav-tabs" id="myTab" role="tablist" 
+          <ul className="nav nav-tabs" id="myTab" role="tablist" key="tabList"
             style={{width:"70%", border:"0px dashed orange"}}>
             {tabTitleList}
           </ul>
