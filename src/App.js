@@ -146,6 +146,7 @@ class App extends Component {
   storeCredentials = (credentials) => {
     localStorage.setItem('userCredentials', JSON.stringify(credentials))
     const idTokenValues = parseJwt(credentials.id_token)
+    // console.log("---> Found ID Token values " + JSON.stringify(idTokenValues))
     localStorage.setItem('userIDTokenValues', JSON.stringify(idTokenValues))
     localStorage.setItem('access_token', JSON.stringify(credentials.access_token))
     // TODO

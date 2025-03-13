@@ -7,6 +7,7 @@ import loginFormDirect from "../jsondata/form_login_direct.json";
 import { getCookie } from "../utilities/cookies";
 import { touchRippleClasses } from "@mui/material";
 import NavigationButton from "./navigation_button";
+import { parseJwt } from "../utilities/parseJWT";
 
 const internal_oauth_auth_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/authorize/"
 const ms_oauth_auth_url = process.env.REACT_APP_SPA_OAUTH_API_URL + "/authorize/"
@@ -194,10 +195,10 @@ class Login extends Component {
   }
 
   async handleMsGwuSsoLogin() {
-    alert("GWU SSO Options coming soon!")
-    return
-    // NB: This response works
-    // const response = await msGwSsoLogin()
+    // alert("GWU SSO Options coming soon!")
+    // return
+    // NB: This response works (in that it tries contacting the MS server...)
+    const response = await msGwSsoLogin()
   }
 
   async oidcAuthorize() {
@@ -226,6 +227,21 @@ class Login extends Component {
     // const credentials = await msGwuGetToken(this.state.oidcCallbackCode)
     // this.setState({stage: 4})
     // this.props.onCodeExchange(credentials)
+  }
+
+  renderFullCredentials() {
+
+    const tokenValues = JSON.parse(localStorage.getItem('userIDTokenValues'))
+    const expirationTime = new Date(tokenValues['exp'] * 1000)
+    const formattedDate = expirationTime.toLocaleString()
+    return JSON.stringify({
+      access_token: JSON.parse(localStorage.getItem('access_token')),
+      idTokenFields: tokenValues,
+      refreshToken: JSON.parse(localStorage.getItem('refresh_token')),
+      expiration: "Expires: " + formattedDate.toString(),
+      // fullCredentials: JSON.parse(localStorage.getItem('userCredentials')),
+    })
+
   }
 
   render() {
@@ -314,7 +330,7 @@ class Login extends Component {
           <div className="leftblock" style={{width:"100%"}}>
           Stage: { this.state.stage }<br />
           Callback code: { this.props.userinfo.oidcCallback } // Should be null now!<br />
-          Credentials: { previousCredentials } // Complete credentials<br />
+          Credentials: { this.renderFullCredentials() } // Complete credentials<br />
           Click below for access to GW-FEAST
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
