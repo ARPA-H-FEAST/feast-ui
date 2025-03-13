@@ -195,10 +195,11 @@ class Login extends Component {
   }
 
   async handleMsGwuSsoLogin() {
-    // alert("GWU SSO Options coming soon!")
-    // return
+    alert("GWU SSO Options coming soon!")
+    return
+    // XXX Needs attention, but we want a running demo!
     // NB: This response works (in that it tries contacting the MS server...)
-    const response = await msGwSsoLogin()
+    // const response = await msGwSsoLogin()
   }
 
   async oidcAuthorize() {
