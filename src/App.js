@@ -118,11 +118,11 @@ class App extends Component {
           // tmpState.isLoaded = true;
           if (result.status === 0){
             this.setState({dialog: {status: true}})
-            // tmpState.dialog.status = true;
-            // tmpState.dialog.msg = tmpState.response.error;
+          } else {
+            // Delete expired credentials if the server didn't ack with logged in info
+            localStorage.removeItem('userCredentials')
+            this.setState({dialog: {status: true}})
           }
-          // this.setState(tmpState);
-          // console.log("---> Exiting user info. Result was " + JSON.stringify(result))
         },
       ).catch((error) => {
         console.log("===> ERROR: " + JSON.stringify(error))
