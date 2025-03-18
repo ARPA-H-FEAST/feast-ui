@@ -10,10 +10,10 @@ import NavigationButton from "./navigation_button";
 import { parseJwt } from "../utilities/parseJWT";
 
 const internal_oauth_auth_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/authorize/"
-const ms_oauth_auth_url = process.env.REACT_APP_SPA_OAUTH_API_URL + "/authorize/"
+const ms_oauth_auth_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/authorize/"
 
 const internal_oauth_token_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/token/"
-const ms_oauth_token_url = process.env.REACT_APP_SPA_OAUTH_API_URL + "/token/"
+const ms_oauth_token_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/token/"
 
 const ms_oauth_client_id = process.env.REACT_APP_MS_OAUTH_CLIENT_ID
 const internal_oauth_client_id = process.env.REACT_APP_FEAST_OAUTH_CLIENT_ID
@@ -59,7 +59,7 @@ async function msGwSsoLogin() {
   const code_verifier = sessionStorage.getItem('code_verifier')
 
   console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
-  console.log("SPA: Contacting OAuth server at url", ms_oauth_auth_url)
+  console.log("SSO: Contacting OAuth server at url", ms_oauth_auth_url)
   const finalURL = `${ms_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${ms_oauth_client_id}&scope=user.read`
   window.location.replace(finalURL)
 }
@@ -114,7 +114,7 @@ async function msGwuGetToken(callback_code) {
   const fullURL = `${ms_oauth_token_url}?client_id=${ms_oauth_client_id}&code=${callback_code}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}&grant_type=authorization_code`
 
   const res = await fetch(
-    // `${oauth_spa_token_url}`, {
+    // `${oauth_sso_token_url}`, {
     fullURL, {
       // credentials: "include",
       headers: headers,
@@ -289,7 +289,7 @@ class Login extends Component {
 			 </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleLoginDirect}>Login via FEAST</button>
-            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SSO)</button>
           </div>
         </div>
       );
@@ -304,7 +304,7 @@ class Login extends Component {
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.oidcAuthorize}>OIDC Authorize</button>
-            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button>
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SSO)</button>
           </div>
         </div>
       )
