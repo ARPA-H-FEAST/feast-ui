@@ -94,34 +94,24 @@ class App extends Component {
   }
 
 	getUserInfo () {
-    // console.log("---> Getting user information <----")
-    // const access_csrf = localStorage.getItem("access_csrf")
+    console.log("---> Getting user information <----")
     const requestOptions = {
       method: 'GET',
-      // headers: {
-      //   'Content-Type': 'application/json',
-      //   'X-CSRF-TOKEN': access_csrf,
-      // },
-      // body: JSON.stringify({}),
       credentials: 'include'
     };
     const svcUrl = LocalConfig.apiHash.user_info;
-    // console.log("---> Contacting login server at " + svcUrl)
+    console.log("---> Contacting login server at " + svcUrl)
     fetch(svcUrl, requestOptions)
       .then((res) => res.json())
       .then(
         (result) => {
-          // console.log("userinfo\n", result);
-			//  var tmpState = this.state;
+          console.log("Userinfo\n", JSON.stringify(result));
           this.setState({userinfo: result, isLoaded: true})
-          // tmpState.userinfo = result;
-          // tmpState.isLoaded = true;
-          if (result.status === 0){
-            this.setState({dialog: {status: true}})
-          } else {
+          if (result.status === 0 || !result.isAuthenticated){
             // Delete expired credentials if the server didn't ack with logged in info
             localStorage.removeItem('userCredentials')
-            this.setState({dialog: {status: true}})
+          } else {
+            // Carry on?
           }
         },
       ).catch((error) => {
