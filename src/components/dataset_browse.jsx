@@ -182,14 +182,14 @@ class DatasetBrowse extends Component {
       var resultSummary = ""
       // XXX console.log("State obj: " + JSON.stringify(passedObjList))
       if (this.state.statobj && "total" in this.state.statobj) {
-        resultSummary = "<b>" + this.state.statobj.total + "</b> files found";
+        resultSummary = "<b>" + this.state.statobj.total + "</b> items found";
         if (tmpList.length > 0) {
           resultSummary += ", <b>" + passedObjList.length + "</b> shown after filters: ";
           resultSummary += "'" + tmpList.join("', '") + "'"
         }
         //resultSummary += ".";
       } else {
-        resultSummary += "<b> No </b> files found"
+        resultSummary += "<b> No </b> items found"
       }
 
         var tableId = "tableone";
