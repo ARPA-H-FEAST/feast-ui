@@ -195,11 +195,11 @@ class Login extends Component {
   }
 
   async handleMsGwuSsoLogin() {
-    alert("GWU SSO Options coming soon!")
-    return
+    // alert("GWU SSO Options coming soon!")
+    // return
     // XXX Needs attention, but we want a running demo!
     // NB: This response works (in that it tries contacting the MS server...)
-    // const response = await msGwSsoLogin()
+    const response = await msGwSsoLogin()
   }
 
   async oidcAuthorize() {
@@ -220,14 +220,14 @@ class Login extends Component {
   }
 
   handleMsGwuTokenExchange = async () => {
-    alert("GWU SSO Options coming soon!")
-    return
+    // alert("GWU SSO Options coming soon!")
+    // return
     // TODO: This response gets a cryptic "400: Bad Request" error from the server
     // The request is crafted per MS documentation here: https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#request-an-access-token-with-a-client_secret
     // Further development is blocked until Dhina 2/ GW IT responds
-    // const credentials = await msGwuGetToken(this.state.oidcCallbackCode)
-    // this.setState({stage: 4})
-    // this.props.onCodeExchange(credentials)
+    const credentials = await msGwuGetToken(this.state.oidcCallbackCode)
+    this.setState({stage: 4})
+    this.props.onCodeExchange(credentials)
   }
 
   renderFullCredentials() {
