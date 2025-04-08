@@ -15,7 +15,8 @@ class Searchbox extends Component {
         <div>
             <div className="search_label">Search </div>
             <div className="search_paper_wrapper"> 
-                <Paper component="form" elevation="0" className="searchbox_paper">
+                {/* elevation="0": Paper component failure */}
+                <Paper component="form" className="searchbox_paper">
                     <InputBase id="query" className="searchbox_input"  
                         defaultValue={this.props.searchquery}
                         inputProps={{ 'aria-label': '', 

@@ -9,7 +9,7 @@ export function getColumns(key, initObj){
       {
         field: 'id',
         headerName: 'FILE NAME',
-        width: 400,
+        width: 150,
         headerClassName:"dgheader",
         cellClassName:"dgcell"
       },
@@ -23,13 +23,14 @@ export function getColumns(key, initObj){
 		{
         field: 'detail',
         headerName: 'DETAILS',
-        width: 500,
+        width: 750,
         headerClassName:"dgheader",
         cellClassName:"dgcell",
         renderCell: (params) => (
           	<span>
-            	<Link className="reglink" to={{pathname: initObj["webroot"] + "/detail/" + params.value.bcoid}}>
-               	{params.value.label}
+              { params.value.description }
+              <Link className="reglink" to={{pathname: initObj["webroot"] + "/detail/" + params.value.bcoid}}>
+                 ...view details
               	</Link>
             </span>
         ),

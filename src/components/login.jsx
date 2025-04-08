@@ -7,12 +7,13 @@ import loginFormDirect from "../jsondata/form_login_direct.json";
 import { getCookie } from "../utilities/cookies";
 import { touchRippleClasses } from "@mui/material";
 import NavigationButton from "./navigation_button";
+import { parseJwt } from "../utilities/parseJWT";
 
 const internal_oauth_auth_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/authorize/"
-const ms_oauth_auth_url = process.env.REACT_APP_SPA_OAUTH_API_URL + "/authorize/"
+const ms_oauth_auth_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/authorize/"
 
 const internal_oauth_token_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/token/"
-const ms_oauth_token_url = process.env.REACT_APP_SPA_OAUTH_API_URL + "/token/"
+const ms_oauth_token_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/token/"
 
 const ms_oauth_client_id = process.env.REACT_APP_MS_OAUTH_CLIENT_ID
 const internal_oauth_client_id = process.env.REACT_APP_FEAST_OAUTH_CLIENT_ID
@@ -25,13 +26,14 @@ async function oidcAuthorize() {
   const code_verifier = sessionStorage.getItem('code_verifier')
 
   console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
-  console.log("FEAST OAuth: Contacting OAuth server at url", internal_oauth_auth_url)
+  console.log("FEAST OAuth: Contacting OAuth server at url: ", internal_oauth_auth_url)
+  console.log("FEAST OAuth: Using client ID: ", internal_oauth_client_id)
   const response = await fetch(
     `${internal_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${internal_oauth_client_id}`, {
       // mode: "cors",
       credentials: "include",
-      // headers: {"Access-Control-Allow-Origin": "*"},
-      headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
+      // headers: {"X-CSRFToken": "*"},
+      // headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
       // headers: {"Access-Control-Allow-Origin": "https://login.microsoftonline.com"},
     }
   ).catch((error) => {
@@ -57,7 +59,7 @@ async function msGwSsoLogin() {
   const code_verifier = sessionStorage.getItem('code_verifier')
 
   console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
-  console.log("SPA: Contacting OAuth server at url", ms_oauth_auth_url)
+  console.log("SSO: Contacting OAuth server at url", ms_oauth_auth_url)
   const finalURL = `${ms_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${ms_oauth_client_id}&scope=user.read`
   window.location.replace(finalURL)
 }
@@ -112,7 +114,7 @@ async function msGwuGetToken(callback_code) {
   const fullURL = `${ms_oauth_token_url}?client_id=${ms_oauth_client_id}&code=${callback_code}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}&grant_type=authorization_code`
 
   const res = await fetch(
-    // `${oauth_spa_token_url}`, {
+    // `${oauth_sso_token_url}`, {
     fullURL, {
       // credentials: "include",
       headers: headers,
@@ -193,10 +195,11 @@ class Login extends Component {
   }
 
   async handleMsGwuSsoLogin() {
-    alert("GWU SSO Options coming soon!")
-    return
-    // NB: This response works
-    // const response = await msGwSsoLogin()
+    // alert("GWU SSO Options coming soon!")
+    // return
+    // XXX Needs attention, but we want a running demo!
+    // NB: This response works (in that it tries contacting the MS server...)
+    const response = await msGwSsoLogin()
   }
 
   async oidcAuthorize() {
@@ -217,14 +220,29 @@ class Login extends Component {
   }
 
   handleMsGwuTokenExchange = async () => {
-    alert("GWU SSO Options coming soon!")
-    return
+    // alert("GWU SSO Options coming soon!")
+    // return
     // TODO: This response gets a cryptic "400: Bad Request" error from the server
     // The request is crafted per MS documentation here: https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#request-an-access-token-with-a-client_secret
     // Further development is blocked until Dhina 2/ GW IT responds
-    // const credentials = await msGwuGetToken(this.state.oidcCallbackCode)
-    // this.setState({stage: 4})
-    // this.props.onCodeExchange(credentials)
+    const credentials = await msGwuGetToken(this.state.oidcCallbackCode)
+    this.setState({stage: 4})
+    this.props.onCodeExchange(credentials)
+  }
+
+  renderFullCredentials() {
+
+    const tokenValues = JSON.parse(localStorage.getItem('userIDTokenValues'))
+    const expirationTime = new Date(tokenValues['exp'] * 1000)
+    const formattedDate = expirationTime.toLocaleString()
+    return JSON.stringify({
+      access_token: JSON.parse(localStorage.getItem('access_token')),
+      idTokenFields: tokenValues,
+      refreshToken: JSON.parse(localStorage.getItem('refresh_token')),
+      expiration: "Expires: " + formattedDate.toString(),
+      // fullCredentials: JSON.parse(localStorage.getItem('userCredentials')),
+    })
+
   }
 
   render() {
@@ -271,7 +289,7 @@ class Login extends Component {
 			 </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.handleLoginDirect}>Login via FEAST</button>
-            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SSO)</button>
           </div>
         </div>
       );
@@ -286,7 +304,7 @@ class Login extends Component {
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
             <button className="btn btn-outline-secondary" onClick={this.oidcAuthorize}>OIDC Authorize</button>
-            {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SPA)</button> */}
+            <button className="btn btn-outline-secondary" onClick={this.handleMsGwuSsoLogin}>Login via GW (SSO)</button>
           </div>
         </div>
       )
@@ -313,7 +331,7 @@ class Login extends Component {
           <div className="leftblock" style={{width:"100%"}}>
           Stage: { this.state.stage }<br />
           Callback code: { this.props.userinfo.oidcCallback } // Should be null now!<br />
-          Credentials: { previousCredentials } // Complete credentials<br />
+          Credentials: { this.renderFullCredentials() } // Complete credentials<br />
           Click below for access to GW-FEAST
           </div>
           <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>

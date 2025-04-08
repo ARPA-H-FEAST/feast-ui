@@ -16,6 +16,7 @@ import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
 import Login from "./components/login";
+import FHIRInterface from "./components/fhir_interface";
 import { parseJwt } from "./utilities/parseJWT";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 import { Button } from "react-bootstrap";
@@ -93,34 +94,25 @@ class App extends Component {
   }
 
 	getUserInfo () {
-    // console.log("---> Getting user information <----")
-    // const access_csrf = localStorage.getItem("access_csrf")
+    console.log("---> Getting user information <----")
     const requestOptions = {
       method: 'GET',
-      // headers: {
-      //   'Content-Type': 'application/json',
-      //   'X-CSRF-TOKEN': access_csrf,
-      // },
-      // body: JSON.stringify({}),
       credentials: 'include'
     };
     const svcUrl = LocalConfig.apiHash.user_info;
+    console.log("---> Contacting login server at " + svcUrl)
     fetch(svcUrl, requestOptions)
       .then((res) => res.json())
       .then(
         (result) => {
-          // console.log("userinfo\n", result);
-			//  var tmpState = this.state;
+          console.log("Userinfo\n", JSON.stringify(result));
           this.setState({userinfo: result, isLoaded: true})
-          // tmpState.userinfo = result;
-          // tmpState.isLoaded = true;
-          if (result.status === 0){
-            this.setState({dialog: {status: true}})
-            // tmpState.dialog.status = true;
-            // tmpState.dialog.msg = tmpState.response.error;
+          if (result.status === 0 || !result.isAuthenticated){
+            // Delete expired credentials if the server didn't ack with logged in info
+            localStorage.removeItem('userCredentials')
+          } else {
+            // Carry on?
           }
-          // this.setState(tmpState);
-          // console.log("---> Exiting user info. Result was " + JSON.stringify(result))
         },
       ).catch((error) => {
         console.log("===> ERROR: " + JSON.stringify(error))
@@ -144,6 +136,7 @@ class App extends Component {
   storeCredentials = (credentials) => {
     localStorage.setItem('userCredentials', JSON.stringify(credentials))
     const idTokenValues = parseJwt(credentials.id_token)
+    // console.log("---> Found ID Token values " + JSON.stringify(idTokenValues))
     localStorage.setItem('userIDTokenValues', JSON.stringify(idTokenValues))
     localStorage.setItem('access_token', JSON.stringify(credentials.access_token))
     // TODO
@@ -158,17 +151,19 @@ class App extends Component {
 
   render() {
 
-   const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-   if (credentials !== null) {
-    // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
-    // for (const key in credentials) {
-    //   console.log(key + ": " + credentials[key])
-    // }
-    // console.table(["Current state", this.state])
-   } else {
-    // Pass ?
-    // console.log("Empty credentials: " + credentials)
-   }
+    console.log("---> Rendering APP <---")
+
+    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+    if (credentials !== null) {
+     // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
+     // for (const key in credentials) {
+     //   console.log(key + ": " + credentials[key])
+     // }
+     // console.table(["Current state", this.state])
+    } else {
+     // Pass ?
+     // console.log("Empty credentials: " + credentials)
+    }
 
 	 if (!this.state.isLoaded){
     const dialog = {
@@ -206,16 +201,19 @@ class App extends Component {
 
    return (
       <div>
-      <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
-      <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
-		<div className="versioncn">
-			<HeaderTwo
+        <div style={{display: 'fluid'}}>
+        <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
+        <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
+        <HeaderTwo
        		moduleTitle={moduleTitle}
         		appVer={app_ver}
         		initObj={initObj}
         		userinfo={this.state.userinfo}
       	/>
-		</div>
+        </div>
+		{/* <div className="versioncn" style={{display: 'fluid'}}>
+			
+		</div> */}
       <Router>
         <Switch>
 			<Route
@@ -230,6 +228,14 @@ class App extends Component {
               <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
             )}
           />
+      <Route 
+        path={webRoot + '/fhir-interface'}
+        render={(props) => (
+          <div className="fhirInterface">
+            <FHIRInterface userinfo={this.state.userinfo} />
+          </div>
+        )}
+      />
            <Route
             path={webRoot + "/callback"}
             render={(props) => (

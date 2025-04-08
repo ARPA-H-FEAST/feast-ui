@@ -70,49 +70,78 @@ export function getStarList(starCount){
 
 export function filterObjectList(objList, filterList) {
 
-    var retObj = {filterinfo:{}, passedobjlist:[]};
-    if (!objList) {
-      return retObj
-    }
-    for (var i in objList) {
-      var obj = objList[i];
-      var passCount = 0;
-      for (var name in obj.categories) {
-        if (["tags","protein"].indexOf(name) !== -1){
-          continue;
-        }
-        for (var q in obj.categories[name]){
-            var value = obj.categories[name][q].toLowerCase(); 
+  // console.log("---> Filtering: " + JSON.stringify(objList))
+  // console.log("---> Based on: " + JSON.stringify(filterList))
 
-            var combo = name + "|" + value;
-            if (!(name in retObj.filterinfo)) {
-                retObj.filterinfo[name] = {};
-            }
-            if(true){
-                if (!(value in retObj.filterinfo[name])){
-                    retObj.filterinfo[name][value] = 1;
-                }
-                else{
-                retObj.filterinfo[name][value] += 1;
-                }
-            }
-            if (filterList.indexOf(combo) !== -1) {
-                passCount += 1;
-            }
-        }
+  var retObj = { 
+      filterinfo: {
+      keywords: {},
+      bodySites: {},
+      accessCategories: {},
+    }, 
+    passedobjlist: [] 
+  };
+  if (!objList) {
+    return retObj
+  }
+  for (var idx in objList) {
+    var obj = objList[idx];
+    // console.log("---> Iterating over object\n" + JSON.stringify(obj))
+    var passCount = 0;
+    // Get keywords
+    for (var name in obj.keywords) {
+      if (["tags", "protein"].indexOf(name) !== -1) {
+        continue;
       }
-      if (filterList.length > 0) {
-        //if (passCount > 0){
-        if (passCount === filterList.length){
-            retObj.passedobjlist.push(obj);
-        }
-      } 
-      else {
-        retObj.passedobjlist.push(obj);
+      const keywordString = obj.keywords[name]
+      if (!(keywordString in retObj.filterinfo.keywords)) {
+        retObj.filterinfo.keywords[keywordString] = 1;
+      } else {
+        retObj.filterinfo.keywords[keywordString] += 1;
+      }
+      // Collect "passed objects"
+      const combo = "keywords|" + keywordString
+      if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
+        // console.log("---> Keyword " + combo + " MATCH")
+        retObj.passedobjlist.push(obj)
       }
     }
-
-    return retObj;
+    // Get physiologically impacted locations
+    for (const idx in obj.body_sites) {
+      const locationString = obj.body_sites[idx]
+      if (!(locationString in retObj.filterinfo.bodySites)) {
+        retObj.filterinfo.bodySites[locationString] = 1;
+      } else {
+        retObj.filterinfo.bodySites[locationString] += 1;
+      }
+      // Collect "passed objects"
+      const combo = "bodySites|" + locationString
+      if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
+        // console.log("---> Body site " + combo + " MATCH")
+        retObj.passedobjlist.push(obj)
+      }
+    }
+    for (const idx in obj.access_categories) {
+      const categoryString = obj.access_categories[idx]
+      if (!(categoryString in retObj.filterinfo.accessCategories)) {
+        retObj.filterinfo.accessCategories[categoryString] = 1
+      } else {
+        retObj.filterinfo.accessCategories[categoryString] += 1
+      }
+      // Collect "passed objects"
+      const combo = "accessCategories|" + categoryString
+      if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
+        // console.log("---> Access category" + combo + " MATCH")
+        retObj.passedobjlist.push(obj)
+      }
+    }
+    if (filterList.length == 0) {
+      // The object should be returned
+      retObj.passedobjlist.push(obj);
+    }
+  }
+  // console.log("---> RETURNING FROM UTILS // FILTER <----")
+  return retObj;
 }
 
 
