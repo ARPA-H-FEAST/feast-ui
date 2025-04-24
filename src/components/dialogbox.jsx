@@ -9,6 +9,13 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 
 class Alertdialog extends Component {
 
+  // XXX
+  // constructor(props) {
+  //   super()
+  //   console.log("===> Constructing: Props are " + JSON.stringify(props))
+  // }
+  
+
   render() {
     
     return (
@@ -35,7 +42,7 @@ class Alertdialog extends Component {
           </DialogActions>
         </Dialog>
       </div>
-    );
+    )
   }
 }
 
