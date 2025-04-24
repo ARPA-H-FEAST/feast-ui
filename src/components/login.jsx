@@ -375,7 +375,7 @@ export default function Login(props) {
 */
   // XXX
   // console.log("---> Callback is " + callback)
-  console.log("---> Previous credentials are " + JSON.stringify(previousCredentials))
+  // console.log("---> Previous credentials are " + JSON.stringify(previousCredentials))
   var cn = "";
   if (previousCredentials.access_token) {
     cn = (
