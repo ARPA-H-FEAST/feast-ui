@@ -86,22 +86,7 @@ export const App = (props) => {
   const storeDialog = useUserStore((state) => state.dialog)
   const resetStoreDialog = useUserStore((state) => state.removeDialog)
 
-  // const handleUpdateUserInfo = (updatedUserInfo) => {
-  //   console.log("---> Updating state? With arg " + JSON.stringify(updatedUserInfo))
-  //   updateUserInfo(updatedUserInfo)
-  // }
-
-  // const [state, updateState] = useState({
-  //   dialog:{
-  //     status:false, 
-  //     msg:""
-  //   },
-  //   userinfo: {},
-  //   isLoaded: false,
-  // })
-
   const handleDialogClose = () => {
-    // updateState({dialog: {status: false}})
     resetStoreDialog()
   }
 
@@ -120,36 +105,6 @@ export const App = (props) => {
 
   const getUserInfo = async () => {
     storeGetUserInfo()
-    // console.log("---> Getting user information <----")
-    // console.log("---> Current state is " + JSON.stringify(storedUserInfo))
-    // const requestOptions = {
-    //   method: 'GET',
-    //   credentials: 'include'
-    // };
-    // const svcUrl = LocalConfig.apiHash.user_info;
-    // console.log("---> Contacting login server at " + svcUrl)
-    // const res = await fetch(svcUrl, requestOptions)
-    // const response = await res.json()
-    // console.log("got response " + JSON.stringify(response))
-    // handleUpdateUserInfo(response)
-    // console.log("---> Revised state is " + JSON.stringify(storedUserInfo))
-    // updateState({ isLoaded: true })
-      // .then((res) => res.json())
-      // .then((result) => {
-      //     console.log("Userinfo\n", JSON.stringify(result));
-      //     updateState({userinfo: result, isLoaded: true})
-      //     useUserStore((state) => state.setUserInfo(result))
-      //     if (result.status === 0 || !result.isAuthenticated){
-      //       // Delete expired credentials if the server didn't ack with logged in info
-      //       localStorage.removeItem('userCredentials')
-      //     } else {
-      //       // Carry on?
-      //     }
-      //   }).catch((error) => {
-      //   console.log("===> ERROR: " + JSON.stringify(error))
-      //   // updateState({isLoaded: false, dialog: {msg: error}})
-      //   // console.log("===> State is now: " + JSON.stringify(state))
-      // })
       const retrievedInfo = storedUserInfo
       if (retrievedInfo == {}) {
         // Error handling
@@ -158,31 +113,9 @@ export const App = (props) => {
       }
   }
 
-  // const updateUserInfo = (newInformation) => {
-  //   // let tmpState = this.state
-  //   // tmpState.userinfo = newInformation
-  //   updateState({userinfo: newInformation})
-  // }
-
   const forceUpdate = () => {
     console.log("Fooled you!")
   }
-
-  // const handlePingUserInfo = async () => {
-  //   await pingUserInfo()
-  // }
-
-  // const storeCredentials = (credentials) => {
-  //   // XXX This should not be at the App level any longer
-  //   localStorage.setItem('userCredentials', JSON.stringify(credentials))
-  //   const idTokenValues = parseJwt(credentials.id_token)
-  //   // console.log("---> Found ID Token values " + JSON.stringify(idTokenValues))
-  //   localStorage.setItem('userIDTokenValues', JSON.stringify(idTokenValues))
-  //   localStorage.setItem('access_token', JSON.stringify(credentials.access_token))
-  //   // TODO
-  //   localStorage.setItem('refresh_token', JSON.stringify(credentials.refresh_token))
-  //   // XXX this.forceUpdate()
-  //  }
 
    const rerenderApp = () => {
     getUserInfo()
@@ -193,51 +126,26 @@ export const App = (props) => {
   // XXX console.log("---> Rendering APP <---")
 
   const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-  if (credentials !== null) {
-    // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
-    // for (const key in credentials) {
-    //   console.log(key + ": " + credentials[key])
-    // }
-    // console.table(["Current state", this.state])
-  } else {
-    // Pass ?
-    // console.log("Empty credentials: " + credentials)
-  }
 
   if (!storeIsLoaded){
-  const dialog = {
-    status: true, 
-    msg: "Error contacting login server. Please contact admin at mazumder_lab@gwu.edu",
-    closeButtonMsg: "Attempt reload?",
-    noticeString: "Fatal error!"
-    }
+    const dialog = {
+        status: true, 
+        msg: "Error contacting login server. Please contact admin at mazumder_lab@gwu.edu",
+        closeButtonMsg: "Attempt reload?",
+        noticeString: "Fatal error!"
+      }
     return <Alertdialog dialog={dialog} onClose={rerenderApp} />
   }	
 
   var app_ver = process.env.REACT_APP_APP_VERSION;
-  // var data_ver = this.state.response.record.dataversion;
 
-  //<div className="versioncn">APP v-{app_ver} &nbsp; |&nbsp; Data v-{data_ver}</div>
   var moduleTitle = "xxx";
-//  var app_ver = "xx";
 
 // TODO: Webroot captures URLs here
 const config = appConfig()
 
 var initObj = config;
 let webRoot = initObj["webroot"];
-// console.log("InitObj", initObj);
-
-if (webRoot === "/dsviewer") {
-  webRoot = "/gw-feast"
-  initObj["webroot"] = "/gw-feast"
-  // updateState({response: {record: {webroot: "/gw-feast"}}})
-}
-// NB: Reinstate this button between header two and the router for easy global access to user state in the console
-//   <div>
-//   <button className="btn btn-outline-secondary" onClick={this.handlePingUserInfo}>Ping User Info</button>
-// </div>
-  // XXX const storedUserInfo = useUserStore.getState().userInfo
 
   return (
     <div>
@@ -248,25 +156,19 @@ if (webRoot === "/dsviewer") {
         moduleTitle={moduleTitle}
         appVer={app_ver}
         initObj={initObj}
-        // userinfo={currentUserInfo}
       />
       </div>
-  {/* <div className="versioncn" style={{display: 'fluid'}}>
-    
-  </div> */}
     <Router>
       <Switch>
     <Route
           path={webRoot + "/login"} 
           render={(props) => (
-            // <Login initObj={initObj} userinfo={state.userinfo} onCodeExchange={storeCredentials} loginHandler={this.updateUserInfo} />
             <Login initObj={initObj} />
           )}
         />
     <Route
           path={"/login"} 
           render={(props) => (
-            // <Login initObj={initObj} userinfo={state.userinfo} onCodeExchange={storeCredentials} loginHandler={this.updateUserInfo} />
             <Login initObj={initObj} />
           )}
         />
@@ -282,7 +184,6 @@ if (webRoot === "/dsviewer") {
           <Route
           path={webRoot + "/callback"}
           render={(props) => (
-            // <Login initObj={initObj} userinfo={state.userinfo} callback={props.location} onCodeExchange={storeCredentials} loginHandler={updateUserInfo} />
             <Login initObj={initObj} callback={props.location} />
           )}
           />
@@ -296,7 +197,6 @@ if (webRoot === "/dsviewer") {
               exact
               path={webRoot + "/browse"}
               render={(props) => (
-                // <DatasetBrowse  initObj={initObj} userInfo={storedUserInfo}/>
                 <DatasetBrowse initObj={initObj} />
               )}
           />
@@ -304,24 +204,19 @@ if (webRoot === "/dsviewer") {
               exact
               path={webRoot + "/detail/:bcoId"}
               render={(props) => (
-                // <DatasetDetail  initObj={initObj} userInfo={storedUserInfo} bcoId={props.match.params.bcoId}/>
                 <DatasetDetail  initObj={initObj} bcoId={props.match.params.bcoId}/>
               )}
           />
           <Route
               path={webRoot}
               render={(props) => (
-            // <Login initObj={initObj} userinfo={state.userinfo} onCodeExchange={storeCredentials} loginHandler={updateUserInfo} />
             <Login initObj={initObj} />
-            // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
               )}
           />
       <Route
               path={webRoot +  "/"}
               render={(props) => (
-                // <Login initObj={initObj} userinfo={state.userinfo} onCodeExchange={storeCredentials} loginHandler={updateUserInfo} />
                 <Login initObj={initObj} />
-            // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
               )}
           />
           <Redirect from={"*"} to={"/gw-feast/login/"} />
@@ -333,5 +228,3 @@ if (webRoot === "/dsviewer") {
 
 
 }
-
-// export default App;
