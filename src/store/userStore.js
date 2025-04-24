@@ -1,6 +1,6 @@
 import { createContext, useContext, useRef } from 'react';
 import { createStore, useStore, create } from 'zustand'
-import { shallow } from 'zustand/shallow'
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 import * as LocalConfig from "../components/local_config"
 import loginFormDirect from "../jsondata/form_login_direct.json"
@@ -18,7 +18,7 @@ const ms_oauth_client_id = process.env.REACT_APP_MS_OAUTH_CLIENT_ID
 const internal_oauth_client_id = process.env.REACT_APP_FEAST_OAUTH_CLIENT_ID
 const redirect_uri = process.env.REACT_APP_ROOT_URL + "/callback/"
 
-export const useUserStore = create((set, get) => ({
+export const useUserStore = create(persist((set, get) => ({
   
   // Basic variables
   authorized: false,
@@ -211,5 +211,9 @@ export const useUserStore = create((set, get) => ({
       // loginStage: 3,
   })),
   removeDialog: () => set((state) => ({dialog: ""})),
-  })
+  }),
+  {
+    name: 'feast-credentials',
+    storage: createJSONStorage(() => localStorage)},  // {local,session}Storage
+  )
 )
