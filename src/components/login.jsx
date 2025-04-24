@@ -395,7 +395,7 @@ export default function Login(props) {
     return ( 
       <div>
       <div className="pagecn" style={{background:"#fff"}}>
-        <Alertdialog dialog={storeDialog} onClose={handleDialogClose}/>
+        {storeDialog && <Alertdialog dialog={storeDialog} onClose={handleDialogClose}/>}
         {cn}
       </div>
       </div>
@@ -468,7 +468,7 @@ export default function Login(props) {
   return (
     <div>
       <div className="pagecn" style={{background:"#fff"}}>
-        <Alertdialog dialog={storeDialog} onClose={handleDialogClose}/>
+        {storeDialog && <Alertdialog dialog={storeDialog} onClose={handleDialogClose}/>}
         {cn}
       </div>
     </div>
