@@ -3,62 +3,64 @@ import { Form, FormControl, Container, Button, Navbar, Nav, NavItem, NavDropdown
 import { NavLink } from 'react-router-dom'
 import Searchbox from "./search_box";
 import Usericon from "./user_icon";
-import {getLogoutResponse} from "./util";
+import { getLogoutResponse } from "./util";
+import { useUserStore } from "../store/userStore";
 
+export const HeaderTwo = (props) => {
 
-class HeaderTwo extends Component {
+  // const currentUserInfo = useUserStore((state) => state.userInfo)
+  const currentUserInfo = useUserStore.getState().userInfo
+  // const currentUserInfo = {}
 
-  handleLogout = () => {  
-	getLogoutResponse().then(result => { 
-      if (result.status === 1){
-        localStorage.removeItem('userCredentials')
-        window.location.href = this.props.initObj["webroot"] + "/login";
-      } else {
-        // Error handling
-      }
+  const handleLogout = () => {  
+	  getLogoutResponse().then(result => { 
+        if (result.status === 1){
+          localStorage.removeItem('userCredentials')
+          window.location.href = props.initObj["webroot"] + "/login";
+        } else {
+          // Error handling
+        }
     });
   }
 
-  routeToLogin = () => {
-    window.location.href = this.props.initObj["webroot"] + "/login"
+  const routeToLogin = () => {
+    window.location.href = props.initObj["webroot"] + "/login"
   }
 
-  render() {
+  var idList = ["portal", "data", "api", "sparql", "gsa"];
+  var pageId = window.location.href.split("/")[3];
+  pageId = (pageId.trim() === "" ? "home" : pageId);
+  var sTwo = {color:"#333", display:"block", float:"right", margin:"5px 5px 5px 40px", padding:"0px"};
+  var sThree = {color:"#333", display:"block", float:"right", margin:"5px 5px 5px 0px",
+    textAlign:"right", padding:"0px"};
+  var headerLinks = [];
+  // console.log("---> Header 2: User info is " + JSON.stringify(currentUserInfo))
+  // if (props.userinfo !== undefined){
+    // if (!props.userinfo.email) {
+  if (currentUserInfo !== undefined) {
+    if (!currentUserInfo.email) {
+    headerLinks.push(
+      // None of Nav.Link, NavLink, or Link components are both functional and correct here. Use function calls as a shim
+      // not worth fixing until the React version is updated.
+      <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" onClick={routeToLogin} style={sTwo}> Login
+      </Nav.Link>
+    );
+  } else {
+    headerLinks.push(
+      <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" onClick={handleLogout} style={sThree}>{ currentUserInfo.email } | Logout
+      </Nav.Link>
+    );
+  }
 
-    var idList = ["portal", "data", "api", "sparql", "gsa"];
-    var pageId = window.location.href.split("/")[3];
-    pageId = (pageId.trim() === "" ? "home" : pageId);
-    var sTwo = {color:"#333", display:"block", float:"right", margin:"5px 5px 5px 40px", padding:"0px"};
-    var sThree = {color:"#333", display:"block", float:"right", margin:"5px 5px 5px 0px",
-      textAlign:"right", padding:"0px"};
-    var headerLinks = [];
-    // console.log("---> Header 2: User info is " + JSON.stringify(this.props.userinfo))
-    if (this.props.userinfo !== undefined){
-      if (!this.props.userinfo.email) {
-      headerLinks.push(
-        // None of Nav.Link, NavLink, or Link components are both functional and correct here. Use function calls as a shim
-        // not worth fixing until the React version is updated.
-        <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" onClick={this.routeToLogin} style={sTwo}> Login
-        </Nav.Link>
-      );
-    } else {
-      headerLinks.push(
-        <Nav.Link id={"link_xx"} key={"link_xx"} to="/login" onClick={this.handleLogout} style={sThree}>{ this.props.userinfo.email } | Logout
-        </Nav.Link>
-      );
-    }
+  headerLinks = headerLinks.reverse();
+  var sFour = {width:"50%"};
 
-    headerLinks = headerLinks.reverse();
-    var sFour = {width:"50%"};
-
-    // <div className="rightblock" style={sFour}>
-
+  // <div className="rightblock" style={sFour}>
     return (
         <Container fluid>
           {headerLinks} 
         </Container>  
     );
-    }
   }
 } 
 export default HeaderTwo;
