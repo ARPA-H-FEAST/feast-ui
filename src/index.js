@@ -27,6 +27,7 @@ generatePKCE()
 // const UserStore = useContext(userStoreContext)
 
 const msalInstance = new PublicClientApplication(msalConfig);
+await msalInstance.initialize()
 
 ReactDOM.render(
   <BrowserRouter>

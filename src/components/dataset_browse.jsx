@@ -13,6 +13,7 @@ import { Markup } from 'interweave';
 import { Card, CardContent } from "@mui/material";
 
 import { useUserStore } from "../store/userStore";
+import { type } from "@testing-library/user-event/dist/type";
 
 export default function DatasetBrowse(props) {  
   
@@ -38,12 +39,16 @@ const userIDTokenValues = useUserStore((state) => state.userIDTokenDetails)
 const storedUserInfo = useUserStore((state) => state.userInfo)
 
 useEffect(() => {
-  // console.log("********* MOUNT TRIGGERED *********")
+  console.log("********* MOUNT TRIGGERED *********")
   const queryParameters = new URLSearchParams(window.location.search);
   var searchQuery = (queryParameters.get("query") === null ? "" : queryParameters.get("query"))
   setState({searchquery: searchQuery});
   updateData("");
   }, [])
+
+  // useEffect(() => {
+  //   console.log("->>> State updated...? " + JSON.stringify(state.filterlist))
+  // }, [state.filterlist])
 
 const updateData = async (searchQuery) => {
 
@@ -104,14 +109,18 @@ const updateData = async (searchQuery) => {
 
   const handleFilterReset = () => {
     $('input[name="filtervalue"]:checkbox').prop("checked", false);
-    setState({ filterlist: [] });
+    setState({...state, filterlist: [] });
   };
 
-  const handleFilterApply = () => {
-      var tmpList = $('input[name="filtervalue"]:checkbox:checked')
-          .map(function () {return $(this).val();}).get(); // <----
-      setState({ filterlist: tmpList });
-  };
+  const handleCheckboxAction = (combo) => {
+      if (!state.filterlist.includes(combo)){
+        setState({ ...state, filterlist: [...state.filterlist, combo] });
+      } else {
+        setState({ ...state, filterlist: state.filterlist.filter((currentItem) => {
+          return combo !== currentItem
+        })})
+      }
+    }
 
   const handleFilterIcon = () => {
       $(".filterboxwrapper").toggle();
@@ -147,6 +156,7 @@ const updateData = async (searchQuery) => {
 
   var tmpList = [];
   for (var i in state.filterlist) {
+    console.log("Iterating over i: " + JSON.stringify(i) + " - " + JSON.stringify(state.filterlist[i]))
     var h = "<b>" + state.filterlist[i].split("|")[1] + "</b>";
     tmpList.push(h);
   }
@@ -233,7 +243,7 @@ const updateData = async (searchQuery) => {
           filterlist={state.filterlist}
           resultcount={state.objlist.length}
           resultSummary={resultSummary}
-          handleFilterApply={handleFilterApply}
+          handleCheckboxAction={handleCheckboxAction}
           handleFilterReset={handleFilterReset}
         />
       </div>

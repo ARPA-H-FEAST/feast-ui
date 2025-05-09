@@ -15,7 +15,7 @@ export const HeaderTwo = (props) => {
   const handleLogout = () => {  
 	  getLogoutResponse().then(result => { 
         if (result.status === 1){
-          localStorage.removeItem('userCredentials')
+          localStorage.removeItem('feast-credentials')
           window.location.href = props.initObj["webroot"] + "/login";
         } else {
           // Error handling

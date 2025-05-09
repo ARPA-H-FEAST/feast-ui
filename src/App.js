@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, Component } from "react";
+import React, { useEffect } from "react";
 
 import DatasetBrowse from "./components/dataset_browse";
 import DatasetDetail from "./components/dataset_detail";
@@ -11,7 +11,7 @@ import Alertdialog from './components/dialogbox';
 import Loadingicon from "./components/loading_icon";
 import * as LocalConfig from "./components/local_config";
 import "./App.css";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, useLocation } from "react-router-dom";
 import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
@@ -85,6 +85,12 @@ export const App = (props) => {
   const storeIsLoaded = useUserStore((state) => state.isLoaded)
   const storeDialog = useUserStore((state) => state.dialog)
   const resetStoreDialog = useUserStore((state) => state.removeDialog)
+  const setCallback = useUserStore((state) => state.setCallback)
+
+  const oidcGetToken = useUserStore((state) => state.oidcGetToken)
+
+  const location = useLocation()
+  const isMSAuthenticated = useIsAuthenticated()
 
   const handleDialogClose = () => {
     resetStoreDialog()
@@ -92,7 +98,7 @@ export const App = (props) => {
 
   useEffect(() => {
     // Notes on useEffect: https://stackoverflow.com/a/54655508
-		getUserInfo();
+    getUserInfo()
   }, [])
 
   const handleSearch = async () => {
@@ -105,12 +111,12 @@ export const App = (props) => {
 
   const getUserInfo = async () => {
     storeGetUserInfo()
-      const retrievedInfo = storedUserInfo
-      if (retrievedInfo == {}) {
-        // Error handling
-      } else {
-        // XXX console.log("---> APP: Found store information " + JSON.stringify(retrievedInfo))
-      }
+    const retrievedInfo = storedUserInfo
+    if (retrievedInfo == {}) {
+      // Error handling
+    } else {
+      // XXX console.log("---> APP: Found store information " + JSON.stringify(retrievedInfo))
+    }
   }
 
   const forceUpdate = () => {
@@ -150,7 +156,7 @@ let webRoot = initObj["webroot"];
   return (
     <div>
       <div style={{display: 'fluid'}}>
-      { storeDialog && <Alertdialog dialog={storeDialog} onClose={handleDialogClose} /> }
+      {/* { storeDialog && <Alertdialog dialog={storeDialog} onClose={handleDialogClose} /> } */}
       <HeaderOne onSearch={handleSearch} onKeyPress={handleKeyPress} initObj={initObj} />
       <HeaderTwo
         moduleTitle={moduleTitle}
@@ -177,15 +183,18 @@ let webRoot = initObj["webroot"];
       render={(props) => (
         <div className="fhirInterface">
           {/* <FHIRInterface userinfo={storedUserInfo} /> */}
-          <FHIRInterface />
+          <FHIRInterface initObj={initObj} />
         </div>
       )}
     />
           <Route
           path={webRoot + "/callback"}
-          render={(props) => (
-            <Login initObj={initObj} callback={props.location} />
-          )}
+          render={(props) => {
+            const callbackString = location.search ? location.search.split("=")[1] : ""
+            return (
+            // <Login initObj={initObj} />
+            <Login initObj={initObj} callback={callbackString} />
+          )}}
           />
         <Route
           path={webRoot + "/static/:pageId"}

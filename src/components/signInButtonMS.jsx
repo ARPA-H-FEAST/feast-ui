@@ -9,13 +9,18 @@ import { loginRequest } from "../configs/authConfig";
 export const SignInButtonMS = () => {
     const { instance } = useMsal();
 
-    // const userStore = 
-
-    const handleLogin = () => {
+    const handleLogin = async () => {
             console.log("===> Clicked!")
-            instance.loginRedirect(loginRequest).catch(e => {
+            // await instance.loginRedirect(loginRequest).catch(e => {
+            //     console.log(e);
+            // });
+            // await instance.acquireTokenRedirect(loginRequest).catch(e => {
+            //     console.log(e);
+            // });
+            const response = await instance.loginRedirect(loginRequest).catch(e => {
                 console.log(e);
             });
+            console.log("===> Instance has returned. Response was " + JSON.stringify(response) + " ...")
     }
     return (
         <button 

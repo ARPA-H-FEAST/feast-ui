@@ -1,12 +1,15 @@
-import { createContext, useContext, useRef } from 'react';
+import { createContext, useContext, useRef } from 'react'
 import { createStore, useStore, create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 import * as LocalConfig from "../components/local_config"
 import loginFormDirect from "../jsondata/form_login_direct.json"
 import { getLoginDirectResponse } from '../components/util'
 import { getCookie } from '../utilities/cookies'
 import { parseJwt } from '../utilities/parseJWT'
+
+import { useMsal } from '@azure/msal-react'
+import { loginRequest } from '../configs/authConfig'
 
 const internal_oauth_auth_url = process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/authorize/"
 const ms_oauth_auth_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/authorize/"
@@ -37,13 +40,13 @@ export const useUserStore = create(persist((set, get) => ({
     // console.log("---> Current state is " + JSON.stringify(this.userInfo))
     const requestOptions = {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
     };
     const svcUrl = LocalConfig.apiHash.user_info;
     // console.log("---> Contacting login server at " + svcUrl)
     const res = await fetch(svcUrl, requestOptions)
     const response = await res.json()
-    console.log("---> STORE: Got response " + JSON.stringify(response))
+    // console.log("---> STORE: Got response " + JSON.stringify(response))
     set({userInfo: response, isLoaded: true})
     if (response.email) {
       set({loginStage: 2})  // Logged in, but not authorized yet
@@ -63,7 +66,7 @@ export const useUserStore = create(persist((set, get) => ({
     console.log("===> Handling login, result was " + JSON.stringify(result))
     localStorage.setItem("access_csrf", getCookie('csrftoken'));
     console.log("---> Got CSRF token " + localStorage.getItem("access_csrf"))
-    set({userInfo: result, loginStage: 2})
+    set({userInfo: result, loginStage: 2, authProvider: "feast"})
   },
   // FEAST-mediated authorization
   oidcAuthorize: async () => {
@@ -76,9 +79,10 @@ export const useUserStore = create(persist((set, get) => ({
     console.log("FEAST OAuth: Using client ID: ", internal_oauth_client_id)
     const response = await fetch(
       `${internal_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${internal_oauth_client_id}`, {
-        // mode: "cors",
+        mode: "cors",
         credentials: "include",
         // headers: {"X-CSRFToken": "*"},
+        // headers: {"Access-Control-Allow-Origin": "http://localhost"},
         // headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
         // headers: {"Access-Control-Allow-Origin": "https://login.microsoftonline.com"},
       }
@@ -124,80 +128,29 @@ export const useUserStore = create(persist((set, get) => ({
           )
         }
       )
-      const response = await res.json()
-  
-      // XXX console.log("Token Exchange: Got details - " + JSON.stringify(parseJwt(response.id_token)))
-
-      const IdTokenInfo = parseJwt(response.id_token)
-
-      set({
-        userCredentials: {
-          access_token: response.access_token,
-          token_type: response.token_type,
-          scope: response.scope,
-          refresh_token: response.refresh_token,
-          id_token: response.id_token,
-        },
-        userIDTokenDetails: parseJwt(response.id_token)
-      })
-  },
-  // MS/GW SSO Authentication option
-  msGwSsoLogin: async () => {
-  
-    // const code_challenge = sessionStorage.getItem('code_challenge')
-    // const code_verifier = sessionStorage.getItem('code_verifier')
-  
-    // console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
-    // console.log("SSO: Contacting OAuth server at url", ms_oauth_auth_url)
-    // const finalURL = `${ms_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${redirect_uri}&client_id=${ms_oauth_client_id}&scope=user.read`
-    // window.location.replace(finalURL)
-  
-  },
-  // MS/GW SSO Auth option (TODO)
-  msGwuGetToken: async (callback) => {
-
-    const code_verifier = sessionStorage.getItem('code_verifier')
-  
-    const headers = new Headers({
-    //   "Cache-Control": "no-cache",
-      "Content-Type": "application/x-www-form-url-encoded",
-    })
-  
-    const fullURL = `${ms_oauth_token_url}?client_id=${ms_oauth_client_id}&code=${callback}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}&grant_type=authorization_code`
-  
-    const res = await fetch(
-      // `${oauth_sso_token_url}`, {
-      fullURL, {
-        // credentials: "include",
-        headers: headers,
-        method: 'POST',
-        mode: 'no-cors',
-        // body: JSON.stringify(
-        //   {
-        //     // scope: "optional space-separated e.g.: 'openid profile'"
-        //     client_id: client_id,
-        //     code: callback_code,
-        //     redirect_uri: redirect_uri,
-        //     grant_type: 'authorization_code',
-        //     // Per https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#request-an-access-token-with-a-certificate-credential
-        //     // code verifier should be exactly 43 characters long (!!)
-        //     code_verifier: code_verifier,
-        //   }
-        // )
-      }
-    )
-    const response = await res.json()
-    console.log("Got response: " + response)
-    // const credentials = {
-    //   access_token: response.access_token,
-    //   token_type: response.token_type,
-    //   scope: response.scope,
-    //   refresh_token: response.refresh_token,
-    //   id_token: response.id_token,
-    // }
+      if (res.ok) {
+        const response = await res.json()
     
-    // return credentials
+        console.log("Token Exchange: Got details - " + JSON.stringify(response))
+
+        set({
+          userCredentials: {
+            access_token: response.access_token,
+            token_type: response.token_type,
+            scope: response.scope,
+            refresh_token: response.refresh_token,
+            id_token: response.id_token,
+          },
+          userIDTokenDetails: parseJwt(response.id_token),
+          authorized: true,
+        })
+    } else {
+      // Error handling
+    }
   },
+  /**** ****/
+  // MS/GW SSO Authentication option external to MSAL hooks
+  // MS/GW SSO Auth option (TBD)
   /**** ****/
   onAuthorize: (provider) => set((state) => ({
       authorized: true,
@@ -205,6 +158,8 @@ export const useUserStore = create(persist((set, get) => ({
       })),
   setUserInfo: (newInfo) => set((state) => ({
       userInfo: newInfo,
+      loginStage: 2,
+      authProvider: "MSSTS",
   })),
   setCallback: (newCallback) => set((state) => ({
       callback: newCallback,
