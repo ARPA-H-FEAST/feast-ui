@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom/cjs/react-router-dom";
 import Searchbox from "./search_box";
 import Filter from "./filter";
@@ -10,12 +10,17 @@ import $ from "jquery";
 import Tableview from "./table";
 import {getColumns} from "./columns";
 import { Markup } from 'interweave';
+import { useUserStore } from "../store/userStore"
 
-import ReactJsonView from '@microlink/react-json-view';
+import ReactJsonView from '@microlink/react-json-view'
 
-class FHIRInterface extends Component {  
+export default function FHIRInterface(props) {  
   
-  state = {
+  const userCredentials = useUserStore((state) => state.userCredentials)
+  const userIDTokenValues = useUserStore((state) => state.userIDTokenValues)
+  const userAuthorized = useUserStore((state) => state.authorized)
+
+  const [state, setState] = useState({
 	  filterlist: [],
     objlist:[],
     statobj:{},
@@ -32,22 +37,22 @@ class FHIRInterface extends Component {
       status:false, 
       msg:""
     },
-  };
+  })
 
-  componentDidMount = () => {
+  useEffect(() => {
     console.log("---> FHIR Attempting to render ....")
-    this.getFHIREndpoints()
-   }
+    getFHIREndpoints()
+   }, [])
 
-  postFHIRData() {
+  const postFHIRData = () => {
     alert("TBD");
   }
   
-  clearData = () => {
-    this.setState({jsonObjects: {}})
+  const clearData = () => {
+    setState({jsonObjects: {}})
   }
 
-  getFHIREndpoints = async () => {
+  const getFHIREndpoints = async () => {
     console.log("---> Collecting FHIR endpoints")
     const endpointURL = LocalConfig.apiHash.fhir_endpoint + "endpoints/"
     const response = await fetch(endpointURL, {
@@ -58,17 +63,14 @@ class FHIRInterface extends Component {
     } else {
       const endpoints = await response.json()
       console.log("---> Collected endpoints: " + JSON.stringify(endpoints))
-      this.setState({endpoints: endpoints})
+      setState({endpoints: endpoints})
     }
   }
 
-	getFHIRResponse = async () => {
+	const getFHIRResponse = async () => {
  
     const access_csrf = localStorage.getItem("access_csrf")
-    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-    const id_token_values = JSON.parse(localStorage.getItem('userIDTokenValues'))
-    const auth_url = id_token_values.iss + "/userinfo/"
-    if (!credentials || !credentials.access_token) {
+    if (!userCredentials || !userCredentials.access_token) {
         console.log("No user credentials located, redirecting")
         // This doesn't work yet, but at least renders *something*
         // see https://stackoverflow.com/a/45090151 for a possible workaround
@@ -76,7 +78,7 @@ class FHIRInterface extends Component {
     }
     // console.log("---> Authorization: Bearer: " + credentials.access_token)
     // console.log("---> Authorization API endpoint: " + auth_url)
-    const queryString = "query/?q=Patient"
+    const queryString = "fhir-query/?q=Patient"
     const requestOptions = {
         method: 'GET',
         // headers: {
@@ -95,66 +97,40 @@ class FHIRInterface extends Component {
         // Error handling
       }
       const jsonResponse = await response.json()
-      console.log("---> Button: Got response " + jsonResponse)
-      console.log("State started as: " + this.state.jsonObjects)
-      this.setState({jsonObjects: jsonResponse}, () => {
-        console.log("---> Changing state to ", jsonResponse)
-      })
-      console.log("State is now: " + this.state.jsonObjects)
+      // console.log("---> Button: Got response " + jsonResponse)
+      // console.log("State started as: " + state.jsonObjects)
+      setState({jsonObjects: jsonResponse})
     } catch {
       // More error handling
     }
   }
 
-    render() {
-
-		  if("msg" in this.props.userinfo){  // TODO: Is "msg" ever included with successful user login?
-        // Redirect to "login" if user isn't logged in upon arrival
-        return <Redirect to="/login" />
-    	}
-      // TODO vs XXX
-      const credentials = localStorage.getItem('userCredentials');
-      if (credentials === null) {
-        console.log("Credentials missing from user info " + JSON.stringify(this.props.userinfo))
-        window.location.href = this.props.initObj["webroot"] + "/login";
-      }
-      console.log("---> Rendering FHIR interface <---")
-      return (
-        <div>
-        <div style={
-          {display: 'flex', justifyContent: 'center'}
-          }>
-          {/* <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} /> */}
-          {/* <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div> */}
-          <button className="btn btn-outline-secondary" onClick={this.getFHIRResponse}>Query FHIR for user sample</button>
-          <button className="btn btn-outline-secondary" onClick={this.postFHIRData}>Upload JSON (TODO)</button>
-          <button className="btn btn-outline-secondary" onClick={this.clearData}>Clear JSON Field</button>
-          </div>
-          <div style={
-            {display: 'flex', minHeight: '300px'}
-          }>
-            <ReactJsonView src={this.state.jsonObjects} theme='summerfruit:inverted' />
-          </div>
-        {/* <div className="statscn">
-					  <Markup content={resultSummary}/> 
-              </div>
-              div className="filterboxwrapper">
-                <Filter
-                  filterinfo={filterInfo}
-                  filterlist={this.state.filterlist}
-                  resultcount={this.state.objlist.length}
-                  resultSummary={resultSummary}
-                  handleFilterApply = {this.handleFilterApply}
-                />
-              </div>
-              <div className="searchresultscn">
-                <Tableview cols={tableCols} rows={tableRows} />
-              </div> */}
-        </div>
-        
-
-      );
+    // TODO vs XXX
+    const credentials = userCredentials
+    if (!credentials.access_token) {
+      console.log("Credentials missing from user info " + JSON.stringify(props.userinfo))
+      window.location.href = props.initObj["webroot"] + "/login";
     }
-}
+    console.log("---> Rendering FHIR interface <---")
+    console.log("Credentials were: " + JSON.stringify(credentials))
+    return (
+      <div>
+      <div style={
+        {display: 'flex', justifyContent: 'center'}
+        }>
+        {/* <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} /> */}
+        {/* <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div> */}
+        <button className="btn btn-outline-secondary" onClick={getFHIRResponse}>Query FHIR for user sample</button>
+        <button className="btn btn-outline-secondary" onClick={postFHIRData}>Upload JSON (TODO)</button>
+        <button className="btn btn-outline-secondary" onClick={clearData}>Clear JSON Field</button>
+        </div>
+        <div style={
+          {display: 'flex', minHeight: '300px'}
+        }>
+          <ReactJsonView src={state.jsonObjects} theme='summerfruit:inverted' />
+        </div>
+      </div>
+      
 
-export default FHIRInterface;
+    );
+}

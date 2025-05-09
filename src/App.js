@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 
 import DatasetBrowse from "./components/dataset_browse";
 import DatasetDetail from "./components/dataset_detail";
@@ -11,7 +11,7 @@ import Alertdialog from './components/dialogbox';
 import Loadingicon from "./components/loading_icon";
 import * as LocalConfig from "./components/local_config";
 import "./App.css";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, useLocation } from "react-router-dom";
 import HeaderOne from "./components/header_one";
 import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
@@ -20,8 +20,10 @@ import FHIRInterface from "./components/fhir_interface";
 import { parseJwt } from "./utilities/parseJWT";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 import { Button } from "react-bootstrap";
-
+import { useUserStore } from "./store/userStore";
 import { appConfig } from "./configs/app_initial_config";
+
+import { useIsAuthenticated } from "@azure/msal-react";
 
 async function pingUserInfo() {
   const credentials = JSON.parse(localStorage.getItem('userCredentials'))
@@ -75,216 +77,163 @@ async function userRefreshToken() {
   console.log("---> Got USERINFO response " + JSON.stringify(result))
 }
 
-class App extends Component {
+export const App = (props) => {
 
-      state = {
-        dialog:{
-          status:false, 
-          msg:""
-        },
-        userinfo: {},
-      };
+  const storedUserInfo = useUserStore((state) => state.userInfo)
+  const updateUserInfo = useUserStore((state) => state.setUserInfo)
+  const storeGetUserInfo = useUserStore((state) => state.getUserInfo)
+  const storeIsLoaded = useUserStore((state) => state.isLoaded)
+  const storeDialog = useUserStore((state) => state.dialog)
+  const resetStoreDialog = useUserStore((state) => state.removeDialog)
+  const setCallback = useUserStore((state) => state.setCallback)
 
-  handleDialogClose = () => {
-    this.setState({dialog: {status: false}})
+  const oidcGetToken = useUserStore((state) => state.oidcGetToken)
+
+  const location = useLocation()
+  const isMSAuthenticated = useIsAuthenticated()
+
+  const handleDialogClose = () => {
+    resetStoreDialog()
   }
 
-  componentDidMount() {
-		this.getUserInfo();
-  }
+  useEffect(() => {
+    // Notes on useEffect: https://stackoverflow.com/a/54655508
+    getUserInfo()
+  }, [])
 
-	getUserInfo () {
-    console.log("---> Getting user information <----")
-    const requestOptions = {
-      method: 'GET',
-      credentials: 'include'
-    };
-    const svcUrl = LocalConfig.apiHash.user_info;
-    console.log("---> Contacting login server at " + svcUrl)
-    fetch(svcUrl, requestOptions)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log("Userinfo\n", JSON.stringify(result));
-          this.setState({userinfo: result, isLoaded: true})
-          if (result.status === 0 || !result.isAuthenticated){
-            // Delete expired credentials if the server didn't ack with logged in info
-            localStorage.removeItem('userCredentials')
-          } else {
-            // Carry on?
-          }
-        },
-      ).catch((error) => {
-        console.log("===> ERROR: " + JSON.stringify(error))
-        this.setState(
-          {isLoaded: false, dialog: {msg: error}}
-      );
-        console.log(JSON.stringify(this.state))
-      })
-  }
-
-  updateUserInfo = (newInformation) => {
-    // let tmpState = this.state
-    // tmpState.userinfo = newInformation
-    this.setState({userinfo: newInformation})
-  }
-
-  async handlePingUserInfo() {
-    await pingUserInfo()
-  }
-
-  storeCredentials = (credentials) => {
-    localStorage.setItem('userCredentials', JSON.stringify(credentials))
-    const idTokenValues = parseJwt(credentials.id_token)
-    // console.log("---> Found ID Token values " + JSON.stringify(idTokenValues))
-    localStorage.setItem('userIDTokenValues', JSON.stringify(idTokenValues))
-    localStorage.setItem('access_token', JSON.stringify(credentials.access_token))
+  const handleSearch = async () => {
     // TODO
-    localStorage.setItem('refresh_token', JSON.stringify(credentials.refresh_token))
-    this.forceUpdate()
-   }
-
-   rerenderApp = () => {
-    this.getUserInfo()
-    this.forceUpdate()
-   }
-
-  render() {
-
-    console.log("---> Rendering APP <---")
-
-    const credentials = JSON.parse(localStorage.getItem('userCredentials'))
-    if (credentials !== null) {
-     // console.log("Found CREDENTIALS:\n", JSON.stringify(credentials))
-     // for (const key in credentials) {
-     //   console.log(key + ": " + credentials[key])
-     // }
-     // console.table(["Current state", this.state])
-    } else {
-     // Pass ?
-     // console.log("Empty credentials: " + credentials)
-    }
-
-	 if (!this.state.isLoaded){
-    const dialog = {
-      status: true, 
-      msg: "Error contacting login server. Please contact admin at mazumder_lab@gwu.edu",
-      closeButtonMsg: "Attempt reload?",
-      noticeString: "Fatal error!"
-    }
-		return <Alertdialog dialog={dialog} onClose={this.rerenderApp} />
-	 }	
-
-    var app_ver = process.env.REACT_APP_APP_VERSION;
-    // var data_ver = this.state.response.record.dataversion;
-
-    //<div className="versioncn">APP v-{app_ver} &nbsp; |&nbsp; Data v-{data_ver}</div>
-    var moduleTitle = "xxx";
-	//  var app_ver = "xx";
-
-  // TODO: Webroot captures URLs here
-  const config = appConfig()
-
-  var initObj = config;
-	let webRoot = initObj["webroot"];
-	// console.log("InitObj", initObj);
-
-  if (webRoot === "/dsviewer") {
-    webRoot = "/gw-feast"
-    initObj["webroot"] = "/gw-feast"
-    this.state.response.record["webroot"] = "/gw-feast"
   }
-// NB: Reinstate this button between header two and the router for easy global access to user state in the console
-//   <div>
-//   <button className="btn btn-outline-secondary" onClick={this.handlePingUserInfo}>Ping User Info</button>
-// </div>
 
-   return (
-      <div>
-        <div style={{display: 'fluid'}}>
-        <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} />
-        <HeaderOne onSearch={this.handleSearch} onKeyPress={this.handleKeyPress} initObj={initObj} />
-        <HeaderTwo
-       		moduleTitle={moduleTitle}
-        		appVer={app_ver}
-        		initObj={initObj}
-        		userinfo={this.state.userinfo}
-      	/>
-        </div>
-		{/* <div className="versioncn" style={{display: 'fluid'}}>
-			
-		</div> */}
-      <Router>
-        <Switch>
-			<Route
-            path={webRoot + "/login"} 
-            render={(props) => (
-              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
-            )}
-          />
-			<Route
-            path={"/login"} 
-            render={(props) => (
-              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
-            )}
-          />
-      <Route 
-        path={webRoot + '/fhir-interface'}
-        render={(props) => (
-          <div className="fhirInterface">
-            <FHIRInterface userinfo={this.state.userinfo} />
-          </div>
-        )}
+  const handleKeyPress = () => {
+    // TODO
+  }
+
+  const getUserInfo = async () => {
+    storeGetUserInfo()
+    const retrievedInfo = storedUserInfo
+    if (retrievedInfo == {}) {
+      // Error handling
+    } else {
+      // XXX console.log("---> APP: Found store information " + JSON.stringify(retrievedInfo))
+    }
+  }
+
+  const forceUpdate = () => {
+    console.log("Fooled you!")
+  }
+
+   const rerenderApp = () => {
+    getUserInfo()
+    forceUpdate()
+   }
+
+
+  // XXX console.log("---> Rendering APP <---")
+
+  const credentials = JSON.parse(localStorage.getItem('userCredentials'))
+
+  if (!storeIsLoaded){
+    const dialog = {
+        status: true, 
+        msg: "Error contacting login server. Please contact admin at mazumder_lab@gwu.edu",
+        closeButtonMsg: "Attempt reload?",
+        noticeString: "Fatal error!"
+      }
+    return <Alertdialog dialog={dialog} onClose={rerenderApp} />
+  }	
+
+  var app_ver = process.env.REACT_APP_APP_VERSION;
+
+  var moduleTitle = "xxx";
+
+// TODO: Webroot captures URLs here
+const config = appConfig()
+
+var initObj = config;
+let webRoot = initObj["webroot"];
+
+  return (
+    <div>
+      <div style={{display: 'fluid'}}>
+      {/* { storeDialog && <Alertdialog dialog={storeDialog} onClose={handleDialogClose} /> } */}
+      <HeaderOne onSearch={handleSearch} onKeyPress={handleKeyPress} initObj={initObj} />
+      <HeaderTwo
+        moduleTitle={moduleTitle}
+        appVer={app_ver}
+        initObj={initObj}
       />
-           <Route
-            path={webRoot + "/callback"}
-            render={(props) => (
-              <Login initObj={initObj} userinfo={this.state.userinfo} callback={props.location} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
-            )}
-            />
+      </div>
+    <Router>
+      <Switch>
+    <Route
+          path={webRoot + "/login"} 
+          render={(props) => (
+            <Login initObj={initObj} />
+          )}
+        />
+    <Route
+          path={"/login"} 
+          render={(props) => (
+            <Login initObj={initObj} />
+          )}
+        />
+    <Route 
+      path={webRoot + '/fhir-interface'}
+      render={(props) => (
+        <div className="fhirInterface">
+          {/* <FHIRInterface userinfo={storedUserInfo} /> */}
+          <FHIRInterface initObj={initObj} />
+        </div>
+      )}
+    />
           <Route
-            path={webRoot + "/static/:pageId"}
-            render={(props) => (
-              <StaticPage pageId={props.match.params.pageId}  initObj={initObj}/>
-            )}
-           />
-           <Route
-               exact
-               path={webRoot + "/browse"}
-               render={(props) => (
-                 <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
-               )}
-           />
-           <Route
-               exact
-               path={webRoot + "/detail/:bcoId"}
-               render={(props) => (
-                 <DatasetDetail  initObj={initObj} userInfo={this.state.userinfo} bcoId={props.match.params.bcoId}/>
-               )}
-           />
-           <Route
-               path={webRoot}
-               render={(props) => (
-              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
-              // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
-               )}
-           />
-			  <Route
-               path={webRoot +  "/"}
-               render={(props) => (
-              <Login initObj={initObj} userinfo={this.state.userinfo} onCodeExchange={this.storeCredentials} loginHandler={this.updateUserInfo} />
-              // <DatasetBrowse  initObj={initObj} userInfo={this.state.userinfo}/>
-               )}
-           />
-           <Redirect from={"*"} to={"/gw-feast/login/"} />
-         </Switch>
-       </Router>
-       <Footer initObj={initObj}/>
-  </div>
+          path={webRoot + "/callback"}
+          render={(props) => {
+            const callbackString = location.search ? location.search.split("=")[1] : ""
+            return (
+            // <Login initObj={initObj} />
+            <Login initObj={initObj} callback={callbackString} />
+          )}}
+          />
+        <Route
+          path={webRoot + "/static/:pageId"}
+          render={(props) => (
+            <StaticPage pageId={props.match.params.pageId}  initObj={initObj}/>
+          )}
+          />
+          <Route
+              exact
+              path={webRoot + "/browse"}
+              render={(props) => (
+                <DatasetBrowse initObj={initObj} />
+              )}
+          />
+          <Route
+              exact
+              path={webRoot + "/detail/:bcoId"}
+              render={(props) => (
+                <DatasetDetail  initObj={initObj} bcoId={props.match.params.bcoId}/>
+              )}
+          />
+          <Route
+              path={webRoot}
+              render={(props) => (
+            <Login initObj={initObj} />
+              )}
+          />
+      <Route
+              path={webRoot +  "/"}
+              render={(props) => (
+                <Login initObj={initObj} />
+              )}
+          />
+          <Redirect from={"*"} to={"/gw-feast/login/"} />
+        </Switch>
+      </Router>
+      <Footer initObj={initObj}/>
+</div>
 );
 
 
-  }
 }
-
-export default App;
