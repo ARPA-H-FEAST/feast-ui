@@ -13,12 +13,12 @@ export function appConfig() {
         {
             "id": "faq",
             "label": "FAQ",
-            "url": "/gw-feast/static/faq"
+            "url": "https://hivelab.biochemistry.gwu.edu/wiki/GW-FEAST_Frequently_Asked_Questions_(FAQ)"
         },
         {
             "id": "about",
             "label": "About",
-            "url": "/gw-feast/static/about"
+            "url": "https://hivelab.biochemistry.gwu.edu/wiki/GW-FEAST"
         },
         {
             "id": "fhir",
