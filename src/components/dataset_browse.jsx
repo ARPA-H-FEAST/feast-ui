@@ -83,7 +83,10 @@ const updateData = async (searchQuery) => {
     console.log("Error on data collection")
   }
   const result = await response.json()
-  // console.log("Got result: " + JSON.stringify(result))
+  // TODO: Per this log line, each access_category correctly recieves "name" and
+  // "link". `filterObjectList` strips the useful information before the `Filter`
+  // component can render a link, however.
+  // console.log("Got objlist: " + JSON.stringify(result.recordlist))
   setState({...state, objlist: result.recordlist, statobj: result.stats})
   }
 
@@ -221,6 +224,9 @@ const updateData = async (searchQuery) => {
       </div>
   )
   }
+
+  // XXX
+  // console.log("Initialized - with filter info: " + JSON.stringify(filterInfo))
 
   return (
     <div>

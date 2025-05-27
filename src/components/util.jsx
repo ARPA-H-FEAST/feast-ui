@@ -75,9 +75,9 @@ export function filterObjectList(objList, filterList) {
 
   var retObj = { 
       filterinfo: {
-      keywords: {},
-      bodySites: {},
-      accessCategories: {},
+      Keywords: {},
+      'Body Sites': {},
+      'Access Categories': {},
     }, 
     passedobjlist: [] 
   };
@@ -94,10 +94,10 @@ export function filterObjectList(objList, filterList) {
         continue;
       }
       const keywordString = obj.keywords[name]
-      if (!(keywordString in retObj.filterinfo.keywords)) {
-        retObj.filterinfo.keywords[keywordString] = 1;
+      if (!(keywordString in retObj.filterinfo.Keywords)) {
+        retObj.filterinfo.Keywords[keywordString] = 1;
       } else {
-        retObj.filterinfo.keywords[keywordString] += 1;
+        retObj.filterinfo.Keywords[keywordString] += 1;
       }
       // Collect "passed objects"
       const combo = "keywords|" + keywordString
@@ -109,10 +109,10 @@ export function filterObjectList(objList, filterList) {
     // Get physiologically impacted locations
     for (const idx in obj.body_sites) {
       const locationString = obj.body_sites[idx]
-      if (!(locationString in retObj.filterinfo.bodySites)) {
-        retObj.filterinfo.bodySites[locationString] = 1;
+      if (!(locationString in retObj.filterinfo['Body Sites'])) {
+        retObj.filterinfo['Body Sites'][locationString] = 1;
       } else {
-        retObj.filterinfo.bodySites[locationString] += 1;
+        retObj.filterinfo['Body Sites'][locationString] += 1;
       }
       // Collect "passed objects"
       const combo = "bodySites|" + locationString
@@ -122,14 +122,14 @@ export function filterObjectList(objList, filterList) {
       }
     }
     for (const idx in obj.access_categories) {
-      const categoryString = obj.access_categories[idx]
-      if (!(categoryString in retObj.filterinfo.accessCategories)) {
-        retObj.filterinfo.accessCategories[categoryString] = 1
+      const categoryObject = obj.access_categories[idx]
+      if (!(categoryObject.name in retObj.filterinfo['Access Categories'])) {
+        retObj.filterinfo['Access Categories'][categoryObject.name] = 1
       } else {
-        retObj.filterinfo.accessCategories[categoryString] += 1
+        retObj.filterinfo['Access Categories'][categoryObject.name] += 1
       }
       // Collect "passed objects"
-      const combo = "accessCategories|" + categoryString
+      const combo = "accessCategories|" + categoryObject.name
       if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
         // console.log("---> Access category" + combo + " MATCH")
         retObj.passedobjlist.push(obj)
@@ -141,6 +141,8 @@ export function filterObjectList(objList, filterList) {
     }
   }
   // console.log("---> RETURNING FROM UTILS // FILTER <----")
+  // console.log(JSON.stringify(retObj))
+  // console.log("==============================================")
   return retObj;
 }
 

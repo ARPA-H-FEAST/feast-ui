@@ -6,7 +6,8 @@ import { ThreeSixtySharp } from "@material-ui/icons";
 export default function Filter(props) {
 
   var filterInfo = props.filterinfo;
-  // XXX
+  // TODO: Filtering out the link for access categories that have it is not straightforward, 
+  // given this wonky setup for filtering out strings...
   // console.log("---> Filter info: " + JSON.stringify(filterInfo))
 
   var divList = [];
@@ -24,8 +25,9 @@ export default function Filter(props) {
   for (var c in catList) {
     var catName = catList[c];
     // console.log("Handling category: " + catName)
-    var catNameLbl = catName.substr(0,1).toUpperCase() + catName.substr(1);
-    catNameLbl = catNameLbl.replace("_", " ");
+    // var catNameLbl = catName.substr(0,1).toUpperCase() + catName.substr(1);
+    // catNameLbl = catNameLbl.replace("_", " ");
+    let catNameLbl = catName.replace("_", " ");
     var rList = [];
     var catValues = filterInfo[catName];
     var catValList = Object.keys(catValues).sort();
@@ -35,12 +37,16 @@ export default function Filter(props) {
       var count = catValues[catVal]
       var combo = catName + "|" + catVal;
       // console.log("---> Working with 'combo' + " + combo)
-      var catValLbl = catVal.substr(0,1).toUpperCase() + catVal.substr(1);
+      // var catValLbl = catVal.substr(0,1).toUpperCase() + catVal.substr(1);
+      var catValLbl = catVal;
       if (catName === "file_type"){
         catValLbl = catVal.toUpperCase();
       }
 
       var isChecked = (props.filterlist.indexOf(combo) === -1 ? false : true)
+      // TODO: Pick up linked category info where possible
+      // let hasLink = catVal.link ? catVal.link : false;
+      // console.log("Category " + catVal + " has link? : " + hasLink)
       rList.push(
         <tr key={combo} >
           <td valign="top" style={{paddingLeft:"10px"}} key={combo + "-data"} >
