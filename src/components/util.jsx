@@ -100,7 +100,7 @@ export function filterObjectList(objList, filterList) {
         retObj.filterinfo.Keywords[keywordString] += 1;
       }
       // Collect "passed objects"
-      const combo = "keywords|" + keywordString
+      const combo = "Keywords|" + keywordString
       if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
         // console.log("---> Keyword " + combo + " MATCH")
         retObj.passedobjlist.push(obj)
@@ -115,7 +115,7 @@ export function filterObjectList(objList, filterList) {
         retObj.filterinfo['Body Sites'][locationString] += 1;
       }
       // Collect "passed objects"
-      const combo = "bodySites|" + locationString
+      const combo = "Body Sites|" + locationString
       if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
         // console.log("---> Body site " + combo + " MATCH")
         retObj.passedobjlist.push(obj)
@@ -129,7 +129,7 @@ export function filterObjectList(objList, filterList) {
         retObj.filterinfo['Access Categories'][categoryObject.name] += 1
       }
       // Collect "passed objects"
-      const combo = "accessCategories|" + categoryObject.name
+      const combo = "Access Categories|" + categoryObject.name
       if (filterList.includes(combo) && !(retObj.passedobjlist.includes(obj))) {
         // console.log("---> Access category" + combo + " MATCH")
         retObj.passedobjlist.push(obj)
