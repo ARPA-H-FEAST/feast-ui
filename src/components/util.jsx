@@ -124,9 +124,10 @@ export function filterObjectList(objList, filterList) {
     for (const idx in obj.access_categories) {
       const categoryObject = obj.access_categories[idx]
       if (!(categoryObject.name in retObj.filterinfo['Access Categories'])) {
-        retObj.filterinfo['Access Categories'][categoryObject.name] = 1
+        retObj.filterinfo['Access Categories'][categoryObject.name] = {count: 1, link: categoryObject.link}
+        // retObj.filterinfo['Access Categories'][categoryObject.name] = 1
       } else {
-        retObj.filterinfo['Access Categories'][categoryObject.name] += 1
+        retObj.filterinfo['Access Categories'][categoryObject.name].count += 1
       }
       // Collect "passed objects"
       const combo = "Access Categories|" + categoryObject.name

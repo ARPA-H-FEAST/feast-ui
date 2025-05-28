@@ -31,40 +31,70 @@ export default function Filter(props) {
     var rList = [];
     var catValues = filterInfo[catName];
     var catValList = Object.keys(catValues).sort();
-    //for (var catVal in catValues){
+
     for (var j in catValList){
-      var catVal = catValList[j];
-      var count = catValues[catVal]
-      var combo = catName + "|" + catVal;
+
+      // Check if the item is a single key: value, or an object (with a count and link)
+      var catValKey = catValList[j];
+      const catValItem = catValues[catValKey]
+      let count = "" 
+      let link = null 
+      if (typeof(catValItem) == "number") {
+        count = catValItem
+      } else {
+        count = catValItem.count
+        link = catValItem.link
+      }
+
+      const catValCount = count
+
+      // console.log("Cat val: " + JSON.stringify(catValKey))
+      // var count = catValues[catVal]
+      var combo = catValKey + "|" + catValCount;
       // console.log("---> Working with 'combo' + " + combo)
       // var catValLbl = catVal.substr(0,1).toUpperCase() + catVal.substr(1);
-      var catValLbl = catVal;
+      var catValLbl = catValKey;
       if (catName === "file_type"){
-        catValLbl = catVal.toUpperCase();
+        catValLbl = catValKey.toUpperCase();
       }
 
       var isChecked = (props.filterlist.indexOf(combo) === -1 ? false : true)
       // TODO: Pick up linked category info where possible
-      // let hasLink = catVal.link ? catVal.link : false;
-      // console.log("Category " + catVal + " has link? : " + hasLink)
-      rList.push(
-        <tr key={combo} >
-          <td valign="top" style={{paddingLeft:"10px"}} key={combo + "-data"} >
-            <input
-              name="filtervalue" 
-              id="filtervalue" 
-              type="checkbox"
-              checked={isChecked} 
-              value={combo} 
-              onChange={() => {/* No-op */}}
-              onClick={handleClick}
-              >
-            </input>
-          </td>
-          <td valign="top" style={{paddingLeft:"10px", fontSize:14}} key={catValLbl} >
-            {catValLbl} ({count})
-          </td>
-        </tr>);
+      // console.log("Category " + catValKey + " has link? : " + link)
+      link !== null ?
+        rList.push(
+          <tr key={combo} >
+            <td valign="top" style={{paddingLeft:"10px"}} key={combo + "-data"} >
+                {/* <td> */}
+                <input
+                  name="filtervalue" 
+                  id={combo}
+                  // target={link}
+                  type="checkbox"
+                  checked={isChecked} 
+                  // value={combo}
+                  onChange={() => {/* No-op */}}
+                  onClick={handleClick}
+                  / >
+                <label for={combo} style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({catValCount})  <a href={link} target="_blank" >(About data...)</a> </label>
+            </td>
+          </tr>) : 
+        rList.push(
+          <tr key={combo} >
+            <td valign="top" style={{paddingLeft:"10px"}} key={combo + "-data"} >
+              <input
+                name="filtervalue" 
+                id="filtervalue" 
+                type="checkbox"
+                checked={isChecked} 
+                // value={combo} 
+                onChange={() => {/* No-op */}}
+                onClick={handleClick}
+                >
+              </input>
+              <label for={combo} style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({catValCount})</label>
+            </td>
+          </tr>);
     }
     divList.push(
       <div className="filter_div_two">
