@@ -159,7 +159,7 @@ const updateData = async (searchQuery) => {
 
   var tmpList = [];
   for (var i in state.filterlist) {
-    console.log("Iterating over i: " + JSON.stringify(i) + " - " + JSON.stringify(state.filterlist[i]))
+    // console.log("Iterating over i: " + JSON.stringify(i) + " - " + JSON.stringify(state.filterlist[i]))
     var h = "<b>" + state.filterlist[i].split("|")[1] + "</b>";
     tmpList.push(h);
   }

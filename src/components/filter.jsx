@@ -50,7 +50,7 @@ export default function Filter(props) {
 
       // console.log("Cat val: " + JSON.stringify(catValKey))
       // var count = catValues[catVal]
-      var combo = catValKey + "|" + catValCount;
+      var combo = catName + "|" + catValKey;
       // console.log("---> Working with 'combo' + " + combo)
       // var catValLbl = catVal.substr(0,1).toUpperCase() + catVal.substr(1);
       var catValLbl = catValKey;
@@ -65,18 +65,18 @@ export default function Filter(props) {
         rList.push(
           <tr key={combo} >
             <td valign="top" style={{paddingLeft:"10px"}} key={combo + "-data"} >
-                {/* <td> */}
                 <input
                   name="filtervalue" 
                   id={combo}
-                  // target={link}
                   type="checkbox"
                   checked={isChecked} 
-                  // value={combo}
+                  value={combo}
                   onChange={() => {/* No-op */}}
                   onClick={handleClick}
                   / >
-                <label for={combo} style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({catValCount})  <a href={link} target="_blank" >(About data...)</a> </label>
+                <label htmlFor={combo} style={{paddingLeft:"10px", fontSize:14}}>
+                  {catValLbl} ({catValCount})  <a href={link} target="_blank" >(About data...)</a>
+                </label>
             </td>
           </tr>) : 
         rList.push(
@@ -87,12 +87,12 @@ export default function Filter(props) {
                 id="filtervalue" 
                 type="checkbox"
                 checked={isChecked} 
-                // value={combo} 
+                value={combo}
                 onChange={() => {/* No-op */}}
                 onClick={handleClick}
                 >
               </input>
-              <label for={combo} style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({catValCount})</label>
+              <label htmlFor={combo} style={{paddingLeft:"10px", fontSize:14}}>{catValLbl} ({catValCount})</label>
             </td>
           </tr>);
     }
