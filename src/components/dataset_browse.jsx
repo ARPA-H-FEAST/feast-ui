@@ -8,7 +8,7 @@ import Loadingicon from "./loading_icon";
 import Alertdialog from './dialogbox';
 import $ from "jquery";
 import Tableview from "./table";
-import {getColumns} from "./columns";
+import { getColumns } from "./columns";
 import { Markup } from 'interweave';
 import { Card, CardContent } from "@mui/material";
 
