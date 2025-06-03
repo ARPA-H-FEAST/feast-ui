@@ -158,14 +158,16 @@ if (!credentials.access_token) {
   tabHash.bcoview.cn = (<div style={{fontSize:"14px"}}><pre>{JSON.stringify(state.bco, null, 2)}</pre></div>);
   
 var downloadItems = [];
-for (var i in state.fileobjlist){
-  var fileObj = state.fileobjlist[i];
-  var fileName = fileObj["filename"];
-  downloadItems.push(
-    <li>
-    <Link id={fileName} to={fileName} bco={state.bco} className="reglink" onClick={handleDownloadFile}>{fileName}</Link>
-    </li>);
-  }
+// for (var i in state.fileobjlist){
+  // var fileObj = state.fileobjlist[i];
+  // var fileName = fileObj["filename"];
+  // downloadItems.push(
+  //   <li>
+  //   <Link id={fileName} to={fileName} bco={state.bco} className="reglink" onClick={handleDownloadFile}>{fileName}</Link>
+  //   </li>);
+  // }
+const downLoadString = (<div>Please email mazumder_lab@gwu.edu to discuss access privileges</div>)
+downloadItems.push(downLoadString)
 
 tabHash["downloads"] = {title:"DOWNLOADS",cn:(<ul style={{margin:"20px 0px 100px 20px"}} key="downloads">{downloadItems}</ul>)};
 
