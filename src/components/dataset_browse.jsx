@@ -184,7 +184,7 @@ const updateData = async (searchQuery) => {
   for (var i in passedObjList){
       var obj = passedObjList[i];
       var o = {};
-      // console.log("Exploring tableCol object: " + JSON.stringify(obj))
+      console.log("Exploring tableCol object: " + JSON.stringify(obj))
     for (var j in tableCols){
       // XXX console.log("tableCols indexed item? ---> " + JSON.stringify(tableCols[j]))
       var f = (tableCols[j]["field"] === "id" ? idField : tableCols[j]["field"])

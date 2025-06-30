@@ -6,16 +6,16 @@ export function getColumns(key, initObj){
 
   var colDict = {
     tableone:[
-      {
-        field: 'id',
-        headerName: 'FILE NAME',
+		{
+        field: 'bcoid',
+        headerName: 'BCOID',
         width: 150,
         headerClassName:"dgheader",
         cellClassName:"dgcell"
       },
-		{
-        field: 'bcoid',
-        headerName: 'BCOID',
+      {
+        field: 'id',
+        headerName: 'FILE NAME',
         width: 150,
         headerClassName:"dgheader",
         cellClassName:"dgcell"
