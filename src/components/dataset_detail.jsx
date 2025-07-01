@@ -25,7 +25,8 @@ export default function DatasetDetail(props) {
 
   const [state, setState] = useState({
    	ver:"",
-    	fileobjlist:[],
+    fileobjlist:[],
+    dbEntries: null,
 		bco:{},
     	tabidx:"bcoview",
     	dialog:{ status:false, msg:""
@@ -76,13 +77,13 @@ export default function DatasetDetail(props) {
       console.log("---> Data details: " + response.error)
     }
     const result = await response.json()
-    // console.log("---> Data View: Got fileobjlist " + JSON.stringify(result.fileobjlist))
-    setState(
-    {...state,
+    // console.log("---> Data View: Got DB entries " + result.db_entries)
+    setState({...state,
       response: "success",
       bco: result.bco,
       fileobjlist: result.fileobjlist,
       loaded: true,
+      dbEntries: JSON.parse(result.db_entries)
     })
   }
 
@@ -171,9 +172,30 @@ downloadItems.push(downLoadString)
 
 tabHash["downloads"] = {title:"DOWNLOADS",cn:(<ul style={{margin:"20px 0px 100px 20px"}} key="downloads">{downloadItems}</ul>)};
 
+let dbCols = []
+let dbRows = []
+
+if (state.dbEntries) {
+  dbCols = getColumns("detailView", props.initObj)(state.dbEntries)
+  state.dbEntries.forEach((row, index) => {
+    // console.log("Pushing row " + JSON.stringify(row))
+    const newObj = row
+    newObj.id = index
+    if ("" in newObj){
+      delete newObj[""]
+    }
+    dbRows.push(newObj)
+  });
+}
+
 tabHash["query"] = {
   title: "QUERY",
-  cn: (<div></div>)
+  cn: (state.dbEntries ? 
+    <div>
+        <Tableview cols={dbCols} rows={dbRows} />
+    </div>
+      : 
+    <div>Database queries are not presently supported for this data set.</div>)
 }
 
 var tabTitleList= [];
