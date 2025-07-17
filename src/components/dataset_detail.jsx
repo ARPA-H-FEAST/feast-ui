@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { Col, Row } from "react-bootstrap";
 import { Redirect } from "react-router-dom/cjs/react-router-dom";
 import Alertdialog from './dialogbox';
 import Loadingicon from "./loading_icon";
 import * as LocalConfig from "./local_config";
 //import { Chart } from "react-google-charts";
+import SubjectFilter from "./subjectFilter";
 import Tableview from "./table";
-import {getColumns} from "./columns";
+import { getColumns } from "./columns";
 import Nav from "./nav"
 
 import { Link, useLocation } from "react-router-dom";
@@ -18,7 +20,7 @@ import download from "downloadjs";
 //import axios from 'axios';
 
 import { useUserStore } from "../store/userStore";
-
+import DetailQueryBox from "./dataset_detail_querybox";
 
 
 export default function DatasetDetail(props) {
@@ -27,10 +29,12 @@ export default function DatasetDetail(props) {
    	ver:"",
     fileobjlist:[],
     dbEntries: null,
+    dbMetadata: null,
 		bco:{},
-    	tabidx:"bcoview",
+    	tabidx:"query",
     	dialog:{ status:false, msg:""
-    	}    
+    	},
+    filterState: [],   
   })
 
   const userCredentials = useUserStore((state) => state.userCredentials)
@@ -40,7 +44,7 @@ export default function DatasetDetail(props) {
   useEffect( () => {
     var rowList = (props.rowList === undefined ? [] : props.rowList);
     var reqObj = { 
-      bcoid: props.bcoId 
+      bcoid: props.bcoId,
     };
     fetchPageData(reqObj); 
   }, [])  
@@ -78,16 +82,22 @@ export default function DatasetDetail(props) {
     }
     const result = await response.json()
     // console.log("---> Data View: Got DB entries " + result.db_entries)
+    // console.log("---> Data View: Got DB metadata " + JSON.stringify(result.db_metadata))
     setState({...state,
       response: "success",
       bco: result.bco,
       fileobjlist: result.fileobjlist,
       loaded: true,
-      dbEntries: JSON.parse(result.db_entries)
+      dbEntries: JSON.parse(result.db_entries),
+      dbMetadata: result.db_metadata,
     })
   }
 
-
+  const handleSearch = (e) => {
+    console.log("---> Searching....")
+    console.log("Filter state:\n" + JSON.stringify(state.filterState))
+    console.log("---> Search event: " + JSON.stringify(e))
+  }
 
  	const handleDownloadFileOld = (e) => {
     	e.preventDefault();
@@ -127,7 +137,22 @@ export default function DatasetDetail(props) {
 
 	};
 
-
+  const handleFilterInfo = (id) => {
+    // console.log("Handling event: " + JSON.stringify(id))
+    const fs = state.filterState
+    if (!fs.includes(id)){
+      // console.log("Adding item: " + id)
+      fs.push(id)
+      setState({...state, filterState: fs})
+    } else {
+      // console.log("Removing item: " + id)
+      const newFs = fs.filter((item) => {
+        // console.log("Filtering " + id + " against " + item)
+        return !(item == id)
+      })
+      setState({...state, filterState: newFs})
+    }
+  }
 
 
  	const handleDownloadBco = (e) => {
@@ -175,6 +200,8 @@ tabHash["downloads"] = {title:"DOWNLOADS",cn:(<ul style={{margin:"20px 0px 100px
 let dbCols = []
 let dbRows = []
 
+let metadata = {}
+
 if (state.dbEntries) {
   dbCols = getColumns("detailView", props.initObj)(state.dbEntries)
   state.dbEntries.forEach((row, index) => {
@@ -190,9 +217,27 @@ if (state.dbEntries) {
 
 tabHash["query"] = {
   title: "QUERY",
-  cn: (state.dbEntries ? 
+  cn: (state.dbEntries ?
     <div>
-        <Tableview cols={dbCols} rows={dbRows} />
+        <Row>
+          <DetailQueryBox 
+            // handleKeyPress={(e) => {console.log("Pressed: " + JSON.stringify(e))}}
+            handleSearch={handleSearch}
+          />
+        </Row>
+        <Row>
+          <div className="filterboxwrapper">
+            <SubjectFilter 
+              filterinfo={state.dbMetadata}
+              state={state.filterState}
+              handler={handleFilterInfo}
+            />
+          </div>
+          <div className="searchresultscn">
+            <Tableview cols={dbCols} rows={dbRows} />
+          </div>
+
+        </Row>
     </div>
       : 
     <div>Database queries are not presently supported for this data set.</div>)
