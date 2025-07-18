@@ -1,5 +1,3 @@
-//import * as Zulamodule from "./module_exports";
-
 export const apiHash = {
     dataset_init: process.env.REACT_APP_API_URL + "/init/",
     dataset_search: process.env.REACT_APP_API_URL + "/search/",

@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { Redirect } from "react-router-dom/cjs/react-router-dom";
 import Alertdialog from './dialogbox';
 import Loadingicon from "./loading_icon";
-import * as LocalConfig from "./local_config";
+import { apiHash } from "./local_config";
 //import { Chart } from "react-google-charts";
 import SubjectFilter from "./subjectFilter";
 import Tableview from "./table";
@@ -30,10 +30,11 @@ export default function DatasetDetail(props) {
     fileobjlist:[],
     dbEntries: null,
     dbMetadata: null,
-		bco:{},
-    	tabidx:"query",
-    	dialog:{ status:false, msg:""
-    	},
+		bco: {},
+    tabidx:"query",
+    dialog: {
+      status:false, msg: ""
+    },
     filterState: [],   
   })
 
@@ -60,6 +61,10 @@ export default function DatasetDetail(props) {
     setState({...state, dialog: {status: false}});
   }
 
+  const clearFilterState = () => {
+    setState({...state, filterState: []})
+  }
+
   const fetchPageData = async (reqObj) => {
 
 		// let access_csrf = localStorage.getItem("access_csrf")
@@ -75,7 +80,7 @@ export default function DatasetDetail(props) {
       	},
       	body: JSON.stringify(reqObj),
     	};
-		const svcUrl = LocalConfig.apiHash.dataset_detail;
+		const svcUrl = apiHash.dataset_detail;
     const response = await fetch(svcUrl, requestOptions)
     if (!response.ok) {
       console.log("---> Data details: " + response.error)
@@ -93,10 +98,41 @@ export default function DatasetDetail(props) {
     })
   }
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     console.log("---> Searching....")
     console.log("Filter state:\n" + JSON.stringify(state.filterState))
-    console.log("---> Search event: " + JSON.stringify(e))
+    console.log("---> Search event: " + e.target.value)
+
+    const csrfToken = localStorage.getItem('access_csrf')
+
+    const searchURL = apiHash.dataset_search
+    
+    console.log("---> Searching API URL " + searchURL)
+    
+    const searchOptions = {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: JSON.stringify({
+          filters: state.filterState,
+          query: e.target.value,
+          searchType: "db",
+          bcoid: props.bcoId,
+        }
+      )
+    }
+    const response = await fetch(searchURL, searchOptions)
+    if (!response.ok) {
+      console.log("----> Search error!")
+    }
+    const result = await response.json()
+    // console.log("---> Search: Got result " + result)
+
+    setState({...state, dbEntries: JSON.parse(result)})
+
   }
 
  	const handleDownloadFileOld = (e) => {
@@ -126,7 +162,7 @@ export default function DatasetDetail(props) {
       	body: JSON.stringify(reqObj),
       	credentials: 'include'
    	};
-   	const svcUrl = LocalConfig.apiHash.dataset_download;
+   	const svcUrl = apiHash.dataset_download;
 		fetch(svcUrl, requestOptions).then((res) => res.blob()).then( (result) => {
       console.log("---> Downloading file by name " + fileName)
 		 		download(new Blob([result]), fileName);
@@ -231,6 +267,8 @@ tabHash["query"] = {
               filterinfo={state.dbMetadata}
               state={state.filterState}
               handler={handleFilterInfo}
+              searchHandler={handleSearch}
+              clearFilter={clearFilterState}
             />
           </div>
           <div className="searchresultscn">
