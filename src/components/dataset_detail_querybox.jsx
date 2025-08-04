@@ -6,7 +6,7 @@ export default function DetailQueryBox({ /* handleKeyPress */ handleSearch }) {
 
     const [state, setState] = useState({})
 
-    const searchExamples = ["sample 1", "sample2", "etc."]
+    const searchExamples = ["sample 1 ", "sample2 ", "etc. "]
 
     // console.log("Search box: Recovered filter info is: " + JSON.stringify(filterinfo))
 

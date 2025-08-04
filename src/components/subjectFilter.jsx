@@ -29,21 +29,23 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
 
   // console.log("Created list: " + JSON.stringify(searchFields))
   return (
-    <div>
-      <button 
-        style={buttonStyle}
-        className="btn btn-outline-secondary"
-        onClick={clearFilter}
-      >
-        Clear selections
-      </button>
-      <button
-        style={buttonStyle}
-        className="btn btn-outline-secondary"
-        onClick={searchHandler}
-      >
-        Search
-      </button>
+    <div style={{ minWidth:"250px" , overflow: "auto"}}>
+      <div style={{ flexDirection: 'row', overflowX: "scroll"}}>
+        <button 
+          style={buttonStyle}
+          className="btn btn-outline-secondary"
+          onClick={clearFilter}
+        >
+          Clear selections
+        </button>
+        <button
+          style={buttonStyle}
+          className="btn btn-outline-secondary"
+          onClick={searchHandler}
+        >
+          Search
+        </button>
+        </div>
       <br />
       {selectionBoxes && searchFields.map((sf, idx) => {
         return (
@@ -62,13 +64,16 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
           <div style={{ fontWeight:"bold", height:40 }} >
             {sf.name}
           </div>
-          <div style={{ maxHeight:"400px", overflow: "auto" }}>
+          <div style={
+              { maxHeight:"400px", overflow: "auto",
+               }
+            }>
             {
               sf.options.map((opt, idx2) => {
                 // console.log("Iterating over subitem " + JSON.stringify(opt))
                 const uniqueId = sf.name + "|" + opt.value
                 return (
-                  <div style={{ paddingLeft: "10px"}}>
+                  <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}}>
                   <input
                     type="checkbox"
                     id={uniqueId}

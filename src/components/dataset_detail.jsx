@@ -262,6 +262,7 @@ tabHash["query"] = {
           />
         </Row>
         <Row>
+          <div style={{ display: "flex" }}>
           <div className="filterboxwrapper">
             <SubjectFilter 
               filterinfo={state.dbMetadata}
@@ -274,7 +275,7 @@ tabHash["query"] = {
           <div className="searchresultscn">
             <Tableview cols={dbCols} rows={dbRows} />
           </div>
-
+          </div>
         </Row>
     </div>
       : 
