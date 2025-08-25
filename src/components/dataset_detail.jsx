@@ -81,14 +81,15 @@ export default function DatasetDetail(props) {
       	},
       	body: JSON.stringify(reqObj),
     	};
-		const svcUrl = apiHash.dataset_detail;
+    const svcUrl = apiHash.dataset_detail;
+    // console.log("Collecting data from API endpoint at: " + svcUrl)
     const response = await fetch(svcUrl, requestOptions)
     if (!response.ok) {
       console.log("---> Data details: " + response.error)
     }
     const result = await response.json()
-    // console.log("---> Data View: Got DB entries " + result.db_entries)
-    // console.log("---> Data View: Got DB metadata " + JSON.stringify(result.db_metadata))
+    //  console.log("---> Data View: Got DB entries " + result.db_entries)
+    //  console.log("---> Data View: Got DB metadata " + JSON.stringify(result.db_metadata))
     setState({...state,
       response: "success",
       bco: result.bco,

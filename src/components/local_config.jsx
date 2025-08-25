@@ -2,7 +2,7 @@ export const apiHash = {
     dataset_init: process.env.REACT_APP_API_URL + "/init/",
     dataset_search: process.env.REACT_APP_API_URL + "/search/",
     dataset_list: process.env.REACT_APP_API_URL + "/list/",
-    dataset_detail: process.env.REACT_APP_API_URL + "/detail/",
+    dataset_detail: process.env.REACT_APP_API_URL + "/dataset-detail/",
     dataset_image: process.env.REACT_APP_API_URL + "/image/",
     dataset_curation: process.env.REACT_APP_API_URL + "/curation/",
     dataset_savecuration: process.env.REACT_APP_API_URL + "/savecuration/",
