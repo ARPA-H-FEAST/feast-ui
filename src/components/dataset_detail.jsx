@@ -46,6 +46,7 @@ export default function DatasetDetail(props) {
     var rowList = (props.rowList === undefined ? [] : props.rowList);
     var reqObj = { 
       bcoid: props.bcoId,
+      ui_use: true,
     };
     fetchPageData(reqObj); 
   }, [])  
@@ -93,7 +94,7 @@ export default function DatasetDetail(props) {
       bco: result.bco,
       fileobjlist: result.fileobjlist,
       loaded: true,
-      dbEntries: JSON.parse(result.db_entries),
+      dbEntries: result.db_entries,
       dbMetadata: result.db_metadata,
     })
   }
