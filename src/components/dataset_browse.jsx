@@ -76,7 +76,7 @@ const updateData = async (searchQuery) => {
     body: JSON.stringify(reqObj),
     credentials: 'include'
   };
-  const svcUrl = LocalConfig.apiHash.dataset_search;
+  const svcUrl = LocalConfig.apiHash.dataset_list;
   const response = await fetch(svcUrl, requestOptions)
   if (!response.ok) {
     // Error handling
@@ -107,7 +107,8 @@ const updateData = async (searchQuery) => {
 
   const handleSearch = () => {
     const searchQuery = ($("#query").val() === undefined ? state.searchquery : $("#query").val());
-      updateData(searchQuery)
+    console.log("---> Searching with query " + JSON.stringify(searchQuery))
+    updateData(searchQuery)
   }
 
   const handleFilterReset = () => {
@@ -176,9 +177,8 @@ const updateData = async (searchQuery) => {
     resultSummary += "<b> No </b> items found"
   }
 
-  var tableId = "tableone";
   var idField = "filename";
-  var tableCols = getColumns(tableId, props.initObj);
+  var tableCols = getColumns("browseView", props.initObj);
   var tableRows = [];
   // console.log("---> Building table. Total file count: " + passedObjList.length)
   for (var i in passedObjList){

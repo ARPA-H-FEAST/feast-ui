@@ -5,17 +5,17 @@ import { Link } from "react-router-dom";
 export function getColumns(key, initObj){
 
   var colDict = {
-    tableone:[
-      {
-        field: 'id',
-        headerName: 'FILE NAME',
+    browseView:[
+		{
+        field: 'bcoid',
+        headerName: 'BCOID',
         width: 150,
         headerClassName:"dgheader",
         cellClassName:"dgcell"
       },
-		{
-        field: 'bcoid',
-        headerName: 'BCOID',
+      {
+        field: 'id',
+        headerName: 'FILE NAME',
         width: 150,
         headerClassName:"dgheader",
         cellClassName:"dgcell"
@@ -37,9 +37,22 @@ export function getColumns(key, initObj){
         sortComparator: (v1, v2) => v1.name.localeCompare(v2.name)
       }
     ],
-    tabletwo:[
-
-    ]
+    detailView: (params) => {
+      const firstSample = params[0]
+      // console.log("===> DetailView called <===\n"+ JSON.stringify(firstSample))
+      const headerArray = []
+      Object.keys(firstSample).forEach(col => {
+        // console.log("Found element " + col);
+        headerArray.push({
+          field: col,
+          headerName: col.toUpperCase(),
+          width: 150,
+          headerClassName: "dgheader",
+          cellClassName: "dgcell",
+        })
+      });
+      return headerArray
+    }
   };
 
   return colDict[key]
