@@ -1,7 +1,7 @@
 export function appConfig() {
     return {
     "dataversion": "1.0",
-    "logo": "FEAST",
+    "logo": "GW Data Commons",
     "search_examples": "Example queries: nbcc, gw, prostate",
     "webroot": "/gwdc",
     "headerlinks": [
