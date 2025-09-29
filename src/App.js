@@ -228,7 +228,7 @@ let webRoot = initObj["webroot"];
                 <Login initObj={initObj} />
               )}
           />
-          <Redirect from={"*"} to={"/gw-feast/login/"} />
+          <Redirect from={"*"} to={"/gwdc/login/"} />
         </Switch>
       </Router>
       <Footer initObj={initObj}/>

@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/gw-feast",
+  "homepage": "/gwdc",
   "dependencies": {
     "@azure/msal-browser": "^4.8.0",
     "@azure/msal-react": "^3.0.7",

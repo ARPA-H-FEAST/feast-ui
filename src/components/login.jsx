@@ -198,11 +198,11 @@ export default function Login(props) {
         Stage: { loginStage }<br />
         Callback code: { props.callback } // Should be null now!<br />
         {/* Credentials: { renderFullCredentials() } // Complete credentials<br /> */}
-        Click below for access to GW-FEAST
+        Click below for access to the GWDC
         </div>
         <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
           {/* XXX testing-ui/dsviewer hardcoding */}
-          <NavigationButton target="/gw-feast/browse/" text="Browse available files"></NavigationButton>
+          <NavigationButton target="/gwdc/browse/" text="Browse available files"></NavigationButton>
         </div>
       </div>
     )

@@ -3,12 +3,12 @@ export function appConfig() {
     "dataversion": "1.0",
     "logo": "FEAST",
     "search_examples": "Example queries: nbcc, gw, prostate",
-    "webroot": "/gw-feast",
+    "webroot": "/gwdc",
     "headerlinks": [
         {
             "id": "home",
             "label": "Home",
-            "url": "/gw-feast/browse"
+            "url": "/gwdc/browse"
         },
         {
             "id": "faq",
@@ -23,7 +23,7 @@ export function appConfig() {
         {
             "id": "fhir",
             "label": "SMART on FHIR",
-            "url": "/gw-feast/fhir-interface"
+            "url": "/gwdc/fhir-interface"
         },
     ],
     "fileuploadformats": [],
@@ -32,19 +32,19 @@ export function appConfig() {
         "links": [
             {
                 "label": "License",
-                "url": "/gw-feast/static/license"
+                "url": "/gwdc/static/license"
             },
             {
                 "label": "Privacy Policy",
-                "url": "/gw-feast/static/privacy/"
+                "url": "/gwdc/static/privacy/"
             },
             {
                 "label": "Disclaimer",
-                "url": "/gw-feast/static/disclaimer/"
+                "url": "/gwdc/static/disclaimer/"
             },
             {
                 "label": "Contact Us",
-                "url": "/gw-feast/static/contactus/"
+                "url": "/gwdc/static/contactus/"
             }
         ],
         "license": "",
