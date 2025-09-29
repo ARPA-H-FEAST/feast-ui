@@ -47,6 +47,12 @@ export default function DatasetDetail(props) {
     var reqObj = { 
       bcoid: props.bcoId,
       ui_use: true,
+      shape: "list",
+      format: "db_view",
+      sample_limit: 30,
+      sample_offset: 0,
+      access_token: userCredentials.access_token,
+      grant_type: "authorization-code",
     };
     fetchPageData(reqObj); 
   }, [])  
@@ -76,7 +82,6 @@ export default function DatasetDetail(props) {
         credentials: 'include',
       	headers: {
         		'Content-Type': 'application/json',
-            // 'Authorization': 'Bearer: ' + accessToken, // XXX FIXME: Django is falling back on session ID here...
         		'X-CSRFToken': csrfToken,
       	},
       	body: JSON.stringify(reqObj),
@@ -85,7 +90,8 @@ export default function DatasetDetail(props) {
     // console.log("Collecting data from API endpoint at: " + svcUrl)
     const response = await fetch(svcUrl, requestOptions)
     if (!response.ok) {
-      console.log("---> Data details: " + response.error)
+      console.log("---> Response: " + response.statusText + " (" + response.status + ")")
+      console.log("---> Data details: " + JSON.stringify(response))
     }
     const result = await response.json()
     //  console.log("---> Data View: Got DB entries " + result.db_entries)

@@ -131,7 +131,7 @@ export const useUserStore = create(persist((set, get) => ({
       if (res.ok) {
         const response = await res.json()
     
-        console.log("Token Exchange: Got details - " + JSON.stringify(response))
+        // console.log("Token Exchange: Got details - " + JSON.stringify(response))
 
         set({
           userCredentials: {
