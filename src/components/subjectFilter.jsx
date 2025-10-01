@@ -60,20 +60,14 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
       })}
         {radioBoxes && searchFields.map((sf, idx) => {
         return (
-        <div>
-          <div style={{ fontWeight:"bold", height:40 }} >
-            {sf.name}
-          </div>
-          <div style={
-              { maxHeight:"400px", overflow: "auto",
-               }
-            }>
-            {
-              sf.options.map((opt, idx2) => {
+        <div key={sf.name+index}>
+        <div style={{ fontWeight:"bold", height:40 }} key={index}>{sf.name}</div>
+        <div style={{maxHeight:"400px", overflow: "auto"}} >
+          { sf.options.map((opt, index2) => {
                 // console.log("Iterating over subitem " + JSON.stringify(opt))
                 const uniqueId = sf.name + "|" + opt.value
                 return (
-                  <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}}>
+                <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}} key={index2+"container"} >
                   <input
                     type="checkbox"
                     id={uniqueId}
@@ -81,8 +75,9 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
                     checked={state.includes(uniqueId) ? true : false}
                     onClick={() => { /** No-op */ }}
                     onChange={() => { handler(uniqueId) }}
+                  key={index2+"input"}
                   / >
-                  <label style={{ paddingLeft: "10px"}}>
+                <label style={{ paddingLeft: "10px"}} key={index2+"label"}>
                     {opt.label}
                   </label>
                   </div>)
@@ -90,8 +85,7 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
               }
           </div>
         </div>)
-      })}
+      })
+    }
     </div>
-  )
-
-}
+)}

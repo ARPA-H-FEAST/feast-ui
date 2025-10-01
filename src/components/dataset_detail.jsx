@@ -239,7 +239,13 @@ var downloadItems = [];
 const downLoadString = (<div>Please email mazumder_lab@gwu.edu to discuss access privileges</div>)
 downloadItems.push(downLoadString)
 
-tabHash["downloads"] = {title:"DOWNLOADS",cn:(<ul style={{margin:"20px 0px 100px 20px"}} key="downloads">{downloadItems}</ul>)};
+tabHash["downloads"] = {
+  title:"DOWNLOADS",
+  cn:(<ul style={{margin:"20px 0px 100px 20px"}} key="downloads">
+    {downloadItems.map((i, index) => (
+      <li key={index}>{i}</li>
+    ))}
+  </ul>)};
 
 let dbCols = []
 let dbRows = []

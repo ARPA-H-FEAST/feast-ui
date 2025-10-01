@@ -20,7 +20,9 @@ class Nav extends Component {
        	<div className="leftblock navcn">
           <DoubleArrowOutlinedIcon style={{color:"#2358C2", fontSize:"17px" }}/>
         		&nbsp; 
-				{navLinks}
+				{navLinks.map((i, index) => (
+					<span key={index}>{i}</span>
+				))}
 			</div>
     );
   }
