@@ -47,18 +47,19 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
         </button>
         </div>
       <br />
-      {selectionBoxes && searchFields.map((sf, idx) => {
+      {/* {selectionBoxes && searchFields.map((sf, index) => {
         return (
-          <div>
+          <div key={index}>
             {sf.name}
             <Select 
               name={sf.name} 
               options={sf.options}
+              key={sf.name+index}
               isMulti
             />
           </div>)
-      })}
-        {radioBoxes && searchFields.map((sf, idx) => {
+      })} */}
+        { radioBoxes && searchFields.map((sf, index) => {
         return (
         <div key={sf.name+index}>
         <div style={{ fontWeight:"bold", height:40 }} key={index}>{sf.name}</div>
