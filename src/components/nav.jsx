@@ -8,13 +8,13 @@ class Nav extends Component {
     var navLinks = [];
     for (var i in this.props.linkObjList){
 		var linkObj = this.props.linkObjList[i];
-      navLinks.push(
-      	<Link to={linkObj["url"]} className="reglink">{linkObj["lbl"]}</Link>
+      	navLinks.push(
+			<a href={linkObj["url"]} className="reglink">{linkObj["lbl"]}</a>
 		);
 		if (i < this.props.linkObjList.length - 1){
 			navLinks.push(<span>&nbsp;/&nbsp;</span>)
 		}
-    }
+	}
 
     return (
        	<div className="leftblock navcn">
