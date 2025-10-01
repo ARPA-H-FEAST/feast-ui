@@ -65,27 +65,27 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
         <div style={{ fontWeight:"bold", height:40 }} key={index}>{sf.name}</div>
         <div style={{maxHeight:"400px", overflow: "auto"}} >
           { sf.options.map((opt, index2) => {
-                // console.log("Iterating over subitem " + JSON.stringify(opt))
-                const uniqueId = sf.name + "|" + opt.value
-                return (
+              // console.log("Iterating over subitem " + JSON.stringify(opt))
+              const uniqueId = sf.name + "|" + opt.value
+              return (
                 <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}} key={index2+"container"} >
-                  <input
-                    type="checkbox"
-                    id={uniqueId}
-                    value={uniqueId}
-                    checked={state.includes(uniqueId) ? true : false}
-                    onClick={() => { /** No-op */ }}
-                    onChange={() => { handler(uniqueId) }}
+                <input
+                  type="checkbox"
+                  id={uniqueId}
+                  value={uniqueId}
+                  checked={state.includes(uniqueId) ? true : false}
+                  onClick={() => { /** No-op */ }}
+                  onChange={() => { handler(uniqueId) }}
                   key={index2+"input"}
-                  / >
+                / >
                 <label style={{ paddingLeft: "10px"}} key={index2+"label"}>
-                    {opt.label}
-                  </label>
-                  </div>)
-                  })
-              }
-          </div>
-        </div>)
+                  {opt.label}
+                </label>
+                </div>)
+                })
+            }
+        </div>
+      </div>)
       })
     }
     </div>
