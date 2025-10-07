@@ -49,7 +49,7 @@ export default function DatasetDetail(props) {
       ui_use: true,
       shape: "list",
       format: "db_view",
-      sample_limit: 30,
+      sample_limit: 100,
       sample_offset: 0,
       access_token: userCredentials.access_token,
       grant_type: "authorization-code",
