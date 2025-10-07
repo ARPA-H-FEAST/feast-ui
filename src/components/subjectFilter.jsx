@@ -25,11 +25,11 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
     searchFields.push({name: field.name, options: theseOptions})
   })
 
-  var buttonStyle = {display: "block",float: "right",marginRight: "10px",fontSize: "14px"};
+  var buttonStyle = {display: "block", float: "right", marginRight: "10px", fontSize: "14px"};
 
   // console.log("Created list: " + JSON.stringify(searchFields))
   return (
-    <div style={{ minWidth:"250px" , overflow: "auto"}}>
+    <div style={{ minWidth: "250px" , overflow: "auto"}}>
       <div style={{ flexDirection: 'row', overflowX: "scroll"}}>
         <button 
           style={buttonStyle}

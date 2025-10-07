@@ -129,6 +129,7 @@ export default function DatasetDetail(props) {
           query: e.target.value,
           searchType: "db",
           bcoid: props.bcoId,
+          access_token: userCredentials.access_token,
         }
       )
     }
@@ -137,9 +138,9 @@ export default function DatasetDetail(props) {
       console.log("----> Search error!")
     }
     const result = await response.json()
-    // console.log("---> Search: Got result " + result)
+    // console.log("---> Search: Got result " + JSON.stringify(result))
 
-    setState({...state, dbEntries: JSON.parse(result)})
+    setState({...state, dbEntries: result})
 
   }
 
@@ -253,8 +254,8 @@ let dbRows = []
 let metadata = {}
 
 if (state.dbEntries) {
-  dbCols = getColumns("detailView", props.initObj)(state.dbEntries)
-  state.dbEntries.forEach((row, index) => {
+  dbCols = getColumns("detailView", props.initObj)(state.dbEntries.data)
+  state.dbEntries.data.forEach((row, index) => {
     // console.log("Pushing row " + JSON.stringify(row))
     const newObj = row
     newObj.id = index
@@ -269,15 +270,15 @@ tabHash["query"] = {
   title: "QUERY",
   cn: (state.dbEntries ?
     <div>
-        <Row>
+        {/* <Row>
           <DetailQueryBox 
             // handleKeyPress={(e) => {console.log("Pressed: " + JSON.stringify(e))}}
             handleSearch={handleSearch}
           />
-        </Row>
+        </Row> */}
         <Row>
           <div style={{ display: "flex" }}>
-          <div className="filterboxwrapper">
+          <Col className="filterboxwrapper">
             <SubjectFilter 
               filterinfo={state.dbMetadata}
               state={state.filterState}
@@ -285,10 +286,11 @@ tabHash["query"] = {
               searchHandler={handleSearch}
               clearFilter={clearFilterState}
             />
-          </div>
-          <div className="searchresultscn">
+          </Col>
+          <Col className="searchresultscn">
+          <div>Entries { state.dbEntries.pagination.offset } - {state.dbEntries.pagination.sample_size+state.dbEntries.pagination.offset} of { state.dbMetadata.size } samples</div>
             <Tableview cols={dbCols} rows={dbRows} />
-          </div>
+          </Col>
           </div>
         </Row>
     </div>
