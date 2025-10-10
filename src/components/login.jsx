@@ -201,7 +201,7 @@ export default function Login(props) {
         Click below for access to the GWDC
         </div>
         <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
-          {/* XXX testing-ui/dsviewer hardcoding */}
+          {/* XXX fhir-api/dsviewer hardcoding */}
           <NavigationButton target="/gwdc/browse/" text="Browse available files"></NavigationButton>
         </div>
       </div>
