@@ -19,7 +19,10 @@ const ms_oauth_token_url = process.env.REACT_APP_SSO_OAUTH_API_URL + "/token/"
 
 const ms_oauth_client_id = process.env.REACT_APP_MS_OAUTH_CLIENT_ID
 const internal_oauth_client_id = process.env.REACT_APP_FEAST_OAUTH_CLIENT_ID
+const internal_fhir_client_id = process.env.REACT_APP_FHIR_CLIENT_ID
+
 const redirect_uri = process.env.REACT_APP_ROOT_URL + "/callback/"
+const fhir_server_uri = process.env.REACT_APP_FHIR_URL
 
 export const useUserStore = create(persist((set, get) => ({
   
@@ -49,9 +52,15 @@ export const useUserStore = create(persist((set, get) => ({
     // console.log("---> STORE: Got response " + JSON.stringify(response))
     set({userInfo: response, isLoaded: true})
     if (response.email) {
-      set({loginStage: 2})  // Logged in, but not authorized yet
-    } else if (response.msg) {
-      set({loginStage: 1})  // Not logged in
+      set({loginStage: 2})
+    } else {
+      // Server says not authenticated — clear any stale persisted auth state
+      set({
+        loginStage: 1,
+        authorized: false,
+        userCredentials: {},
+        userIDTokenDetails: {},
+      })
     }
     // console.log("---> Revised state is " + JSON.stringify(this.userInfo))
   },
@@ -146,6 +155,46 @@ export const useUserStore = create(persist((set, get) => ({
         })
     } else {
       // Error handling
+    }
+  },
+  /**** ****/
+  // Redirect to FHIR application endpoint
+  /**** ****/
+  fhirAuthorize: async () => {
+  
+    const code_challenge = sessionStorage.getItem('code_challenge')
+    const code_verifier = sessionStorage.getItem('code_verifier')
+  
+    const fhir_redirect_uri = fhir_server_uri + "/callback/"
+
+    console.log("---> PKCE:\nChallenge: %s\nVerifier: %s", code_challenge, code_verifier)
+    console.log("FEAST OAuth: Contacting OAuth server at url: ", internal_oauth_auth_url)
+    console.log("FEAST OAuth: Using client ID: ", internal_fhir_client_id)
+    const response = await fetch(
+      `${internal_oauth_auth_url}?response_type=code&code_challenge=${code_challenge}&code_challenge_method=S256&redirect_uri=${fhir_redirect_uri}&client_id=${internal_fhir_client_id}&state=${code_verifier}`, {
+        mode: "cors",
+        credentials: "include",
+        // headers: {"X-CSRFToken": "*"},
+        // headers: {"Access-Control-Allow-Origin": "http://localhost"},
+        // headers: {"Access-Control-Allow-Origin": "https://feast.mgpc.biochemistry.gwu.edu"},
+        // headers: {"Access-Control-Allow-Origin": "https://login.microsoftonline.com"},
+      }
+    ).catch((error) => {
+      console.log("ERROR: " + error)
+      return false 
+    })
+    console.log("---> OAuth response: ", response)
+    console.log("FEAST OAuth: Contacting OAuth server at url: ", internal_oauth_auth_url)
+    console.log("FEAST OAuth: Using client ID: ", internal_fhir_client_id)
+    if(response.ok) {
+    if (response.url) {
+      const url = new URL(response.url)
+      // console.log("Found redirect URL: ", url)
+      window.location.replace(url)
+    }
+    else { 
+      /* error handling */
+      }
     }
   },
   /**** ****/

@@ -25,11 +25,11 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
     searchFields.push({name: field.name, options: theseOptions})
   })
 
-  var buttonStyle = {display: "block",float: "right",marginRight: "10px",fontSize: "14px"};
+  var buttonStyle = {display: "block", float: "right", marginRight: "10px", fontSize: "14px"};
 
   // console.log("Created list: " + JSON.stringify(searchFields))
   return (
-    <div style={{ minWidth:"250px" , overflow: "auto"}}>
+    <div style={{ minWidth: "250px" , overflow: "auto"}}>
       <div style={{ flexDirection: 'row', overflowX: "scroll"}}>
         <button 
           style={buttonStyle}
@@ -47,51 +47,46 @@ export default function SubjectFilter({ filterinfo, state, handler, clearFilter,
         </button>
         </div>
       <br />
-      {selectionBoxes && searchFields.map((sf, idx) => {
+      {/* {selectionBoxes && searchFields.map((sf, index) => {
         return (
-          <div>
+          <div key={index}>
             {sf.name}
             <Select 
               name={sf.name} 
               options={sf.options}
+              key={sf.name+index}
               isMulti
             />
           </div>)
-      })}
-        {radioBoxes && searchFields.map((sf, idx) => {
+      })} */}
+        { radioBoxes && searchFields.map((sf, index) => {
         return (
-        <div>
-          <div style={{ fontWeight:"bold", height:40 }} >
-            {sf.name}
-          </div>
-          <div style={
-              { maxHeight:"400px", overflow: "auto",
-               }
-            }>
-            {
-              sf.options.map((opt, idx2) => {
-                // console.log("Iterating over subitem " + JSON.stringify(opt))
-                const uniqueId = sf.name + "|" + opt.value
-                return (
-                  <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}}>
-                  <input
-                    type="checkbox"
-                    id={uniqueId}
-                    value={uniqueId}
-                    checked={state.includes(uniqueId) ? true : false}
-                    onClick={() => { /** No-op */ }}
-                    onChange={() => { handler(uniqueId) }}
-                  / >
-                  <label style={{ paddingLeft: "10px"}}>
-                    {opt.label}
-                  </label>
-                  </div>)
-                  })
-              }
-          </div>
-        </div>)
-      })}
+        <div key={sf.name+index}>
+        <div style={{ fontWeight:"bold", height:40 }} key={index}>{sf.name}</div>
+        <div style={{maxHeight:"400px", overflow: "auto"}} >
+          { sf.options.map((opt, index2) => {
+              // console.log("Iterating over subitem " + JSON.stringify(opt))
+              const uniqueId = sf.name + "|" + opt.value
+              return (
+                <div style={{ overflowX: "scroll", whiteSpace: "nowrap"}} key={index2+"container"} >
+                <input
+                  type="checkbox"
+                  id={uniqueId}
+                  value={uniqueId}
+                  checked={state.includes(uniqueId) ? true : false}
+                  onClick={() => { /** No-op */ }}
+                  onChange={() => { handler(uniqueId) }}
+                  key={index2+"input"}
+                / >
+                <label style={{ paddingLeft: "10px"}} key={index2+"label"}>
+                  {opt.label}
+                </label>
+                </div>)
+                })
+            }
+        </div>
+      </div>)
+      })
+    }
     </div>
-  )
-
-}
+)}

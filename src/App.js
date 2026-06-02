@@ -17,6 +17,7 @@ import HeaderTwo from "./components/header_two";
 import Footer from "./components/footer";
 import Login from "./components/login";
 import FHIRInterface from "./components/fhir_interface";
+import MutationDashboard from "./components/mutation_dashboard";
 import { parseJwt } from "./utilities/parseJWT";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 import { Button } from "react-bootstrap";
@@ -178,12 +179,20 @@ let webRoot = initObj["webroot"];
             <Login initObj={initObj} />
           )}
         />
-    <Route 
+    <Route
       path={webRoot + '/fhir-interface'}
       render={(props) => (
         <div className="fhirInterface">
           {/* <FHIRInterface userinfo={storedUserInfo} /> */}
           <FHIRInterface initObj={initObj} />
+        </div>
+      )}
+    />
+    <Route
+      path={webRoot + '/mutation-dashboard'}
+      render={(props) => (
+        <div style={{ padding: '0 20px' }}>
+          <MutationDashboard />
         </div>
       )}
     />

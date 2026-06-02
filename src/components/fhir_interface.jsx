@@ -67,30 +67,55 @@ export default function FHIRInterface(props) {
     }
   }
 
+  const goToFHIRServer = async () => {
+    // window.location.href = "http://localhost:8080/fhir"
+    console.log("---> Authorization: Bearer: " + credentials.access_token)
+    console.log("---> (Full credentials):" + JSON.stringify(credentials))
+    // console.log("---> Authorization API endpoint: " + auth_url)    
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer: ' + credentials.access_token,
+        // 'grant_type': "authorization-code",
+        // 'Iss-Oauth': auth_url
+      }
+    }
+    
+    const svcUrl = 'http://localhost:8080/fhir/swagger-ui/'
+    const response = await fetch(svcUrl, requestOptions)
+    const jsonResponse = await response.json()
+
+    console.log("===> Got response: " + JSON.stringify(jsonResponse))
+
+  }
+
 	const getFHIRResponse = async () => {
  
+    console.log("===> Attempting to hit the FHIR server <===")
+
     const access_csrf = localStorage.getItem("access_csrf")
-    if (!userCredentials || !userCredentials.access_token) {
-        console.log("No user credentials located, redirecting")
-        // This doesn't work yet, but at least renders *something*
-        // see https://stackoverflow.com/a/45090151 for a possible workaround
-        return <Redirect to='/login' />
-    }
-    // console.log("---> Authorization: Bearer: " + credentials.access_token)
+    // if (!userCredentials || !userCredentials.access_token) {
+    //     console.log("No user credentials located, redirecting")
+    //     // This doesn't work yet, but at least renders *something*
+    //     // see https://stackoverflow.com/a/45090151 for a possible workaround
+    //     return <Redirect to='/login' />
+    // }
+    console.log("---> Authorization: Bearer: " + credentials.access_token)
     // console.log("---> Authorization API endpoint: " + auth_url)
-    const queryString = "fhir-query/?q=Patient"
+    const queryString = "fhir-query/Patient"
     const requestOptions = {
         method: 'GET',
-        // headers: {
+        headers: {
         // 		'Content-Type': 'application/json',
-        // 		'X-CSRFToken': access_csrf,
-        //     'Authorization': 'Bearer: ' + credentials.access_token,
+        		'X-CSRFToken': access_csrf,
+            'Authorization': 'Bearer ' + credentials.access_token,
         //     'Iss-Oauth': auth_url,  // This address confirms login state on the backend
-        // },
+        },
         // body: JSON.stringify({}),
         credentials: 'include'
     };
     const svcUrl = LocalConfig.apiHash.fhir_endpoint + queryString;
+    console.log("===> Querying URL at " + svcUrl)
     try {
       const response = await fetch(svcUrl, requestOptions)
       if(!response.ok) {
@@ -107,10 +132,10 @@ export default function FHIRInterface(props) {
 
     // TODO vs XXX
     const credentials = userCredentials
-    if (!credentials.access_token) {
-      console.log("Credentials missing from user info " + JSON.stringify(props.userinfo))
-      window.location.href = props.initObj["webroot"] + "/login";
-    }
+    // if (!credentials.access_token) {
+    //   console.log("Credentials missing from user info " + JSON.stringify(props.userinfo))
+    //   window.location.href = props.initObj["webroot"] + "/login";
+    // }
     console.log("---> Rendering FHIR interface <---")
     console.log("Credentials were: " + JSON.stringify(credentials))
     return (
@@ -120,6 +145,7 @@ export default function FHIRInterface(props) {
         }>
         {/* <Alertdialog dialog={this.state.dialog} onClose={this.handleDialogClose} /> */}
         {/* <div className="material-icons rightblock filtericoncn" onClick={this.handleFilterIcon}>tune</div> */}
+        {/* <button className="btn btn-outline-secondary" onClick={goToFHIRServer}>Navigate to the FHIR server</button> */}
         <button className="btn btn-outline-secondary" onClick={getFHIRResponse}>Query FHIR for user sample</button>
         <button className="btn btn-outline-secondary" onClick={postFHIRData}>Upload JSON (TODO)</button>
         <button className="btn btn-outline-secondary" onClick={clearData}>Clear JSON Field</button>
