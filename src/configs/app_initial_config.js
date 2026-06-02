@@ -25,6 +25,11 @@ export function appConfig() {
             "label": "SMART on FHIR",
             "url": "/gwdc/fhir-interface"
         },
+        {
+            "id": "mutation",
+            "label": "dbGaP Analytics",
+            "url": "/gwdc/mutation-dashboard"
+        },
     ],
     "fileuploadformats": [],
     "fileuploadqc": [],
