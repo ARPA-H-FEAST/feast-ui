@@ -1,4 +1,4 @@
-import React, { useContext, useState, setState, Component } from "react";
+import React, { useContext, useState, setState, Component, useEffect } from "react";
 import Formeditor from "./form_editor";
 import {getLoginOneResponse, getLoginTwoResponse, getLoginThreeResponse, getLoginDirectResponse} from './util';
 import Alertdialog from './dialogbox';
@@ -8,6 +8,7 @@ import Loadingicon from "./loading_icon";
 import { getCookie } from "../utilities/cookies";
 import { touchRippleClasses } from "@mui/material";
 import NavigationButton from "./navigation_button";
+import { useHistory } from "react-router-dom";
 import { parseJwt } from "../utilities/parseJWT";
 import { SignInButtonMS } from "./signInButtonMS";
 import { useUserStore } from "../store/userStore";
@@ -44,6 +45,8 @@ export default function Login(props) {
   // FEAST-mediated login functions
   const storeLogin = useUserStore((state) => state.login)
   const oidcAuthorize = useUserStore((state) => state.oidcAuthorize)
+  const fhirAuthorize = useUserStore((state) => state.fhirAuthorize)
+
   const oidcGetToken = useUserStore((state) => state.oidcGetToken)
   // GW SSO AuthN/Z options
   const gwSsoAuthentication = useUserStore((state) => state.handleMSSsoAuth)
@@ -53,9 +56,24 @@ export default function Login(props) {
   const isAuthorized = useUserStore((state) => state.authorized)
 
   const isMSAuthenticated = useIsAuthenticated()
+  const history = useHistory()
 
   const { instance, accounts } = useMsal()
   const [ graphData, setGraphData ] = useState(null)
+
+  // Auto-exchange the callback code when it arrives at stage 2
+  useEffect(() => {
+    if (loginStage === 2 && props.callback) {
+      handleOIDCCodeExchange()
+    }
+  }, [loginStage, props.callback])
+
+  // Navigate away from /callback once the exchange is complete
+  useEffect(() => {
+    if (isAuthorized && props.callback) {
+      history.replace(props.initObj.webroot + '/browse')
+    }
+  }, [isAuthorized])
 
 
   const requestProfileData = async () => {
@@ -152,6 +170,10 @@ export default function Login(props) {
     const response = await oidcAuthorize()
   }
 
+  const handleFhirAuthorize = async () => {
+    const response = await fhirAuthorize()
+  }
+
   const handleOIDCCodeExchange = async () => {
     // const callback = props.callback ? props.callback.search.split("=")[1] : ""
     await oidcGetToken(props.callback)
@@ -195,9 +217,6 @@ export default function Login(props) {
     cn = (
       <div>
         <div className="leftblock" style={{width:"100%"}}>
-        Stage: { loginStage }<br />
-        Callback code: { props.callback } // Should be null now!<br />
-        {/* Credentials: { renderFullCredentials() } // Complete credentials<br /> */}
         Click below for access to the GWDC
         </div>
         <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
@@ -243,17 +262,9 @@ export default function Login(props) {
   }
   else if (loginStage === 2 && props.callback){
     cn = (
-      <div>
-        <div className="leftblock" style={{width:"100%"}}>
-        Stage: { loginStage }<br />
-        Callback code: { props.callback }<br />
-        {/* Credentials: { JSON.stringify(previousCredentials) } // Should be null<br /> */}
-        Please click to authorize activity<br />
-        </div>
-        <div key={"login_btn_one"} className="leftblock " style={{width:"80%", margin:"10px 0px 0px 5%"}}>
-          <button className="btn btn-outline-secondary" onClick={handleOIDCCodeExchange}>OIDC Exchange Code</button>
-          {/* <button className="btn btn-outline-secondary" onClick={this.handleMsGwuTokenExchange}>GWU Get token</button> */}
-        </div>
+      <div className="leftblock" style={{width:"100%"}}>
+        <Loadingicon />
+        <div style={{marginTop: "10px", marginLeft: "5%"}}>Completing authorization…</div>
       </div>
     )}
   else if (loginStage === 2){

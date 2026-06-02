@@ -18,7 +18,8 @@ export const apiHash = {
     user_info:process.env.REACT_APP_SMART_URL + "/users/whoami/",
     // init_info:process.env.REACT_APP_SMART_URL + "/users/init/",
     oauth_user_info:process.env.REACT_APP_INTERNAL_OAUTH_API_URL + "/userinfo/",
-    fhir_endpoint: process.env.REACT_APP_SMART_URL + "/api/"
+    fhir_endpoint: process.env.REACT_APP_SMART_URL + "/api/",
+    // fhir_server: process.env.REACT_APP_FHIR_URL
 };
 
 
