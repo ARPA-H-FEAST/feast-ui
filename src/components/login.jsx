@@ -42,6 +42,7 @@ export default function Login(props) {
   const resetStoreDialog = useUserStore((state) => state.removeDialog)
   // Stage of login progress
   const storeLoginStage = useUserStore((state) => state.loginStage)
+  const loginStage = storeLoginStage
   // FEAST-mediated login functions
   const storeLogin = useUserStore((state) => state.login)
   const oidcAuthorize = useUserStore((state) => state.oidcAuthorize)
@@ -202,8 +203,6 @@ export default function Login(props) {
 
   }
 
-  const loginStage = storeLoginStage
-  
   // TODO - Auto redirect
   // if (props.callback) {
   //   handleOIDCCodeExchange()
